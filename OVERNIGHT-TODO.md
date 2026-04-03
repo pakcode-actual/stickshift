@@ -1,7 +1,7 @@
 # Stick Figure Storytelling — Overnight Build
-**Worker status:** RUNNING
+**Worker status:** IDLE
 **Last worker:** watchdog-2026-04-02-2337
-**Last updated:** 2026-04-03 06:56 UTC
+**Last updated:** 2026-04-03 07:05 UTC
 ---
 
 ## Phase B: Playwright Frame Capture Pipeline (STI-5)
@@ -37,8 +37,8 @@
 - [x] Save iteration log as captures/{scene}-iteration-log.json
 - [x] Final output: optimized Scene Beat JSON + filmstrip of best iteration
 - [x] npm run build passes
-- [ ] git commit with message "feat: STI-7 Phase D — closed-loop animation iteration"
+- [x] git commit with message "feat: STI-7 Phase D — closed-loop animation iteration"
 
 ## Completion
-- [ ] Post summary to Discord channel 1483684719550791690
-- [ ] Disable watchdog cron
+- [x] Post summary to Discord channel 1483684719550791690
+- [x] Disable watchdog cron

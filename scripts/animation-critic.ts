@@ -5,16 +5,27 @@
  * Usage:
  *   npx tsx scripts/animation-critic.ts <frames-dir> <scene-description>
  *
- * Env:
- *   ANTHROPIC_API_KEY — required
+ * Reads auth token from ~/.openclaw/openclaw.json (gateway.auth.token).
+ * Calls the OpenClaw local chat completions API at http://localhost:18789/v1/chat/completions.
  *
- * Selects key frames (every 30th, or first/middle/last), sends to Claude vision,
+ * Selects key frames (every 30th, or first/middle/last), sends to vision model,
  * and returns structured quality assessment.
  */
 
-import Anthropic from '@anthropic-ai/sdk'
 import * as fs from 'fs'
 import * as path from 'path'
+import * as os from 'os'
+
+// ── OpenClaw auth ─────────────────────────────────────────────────────────
+
+function loadAuthToken(): string {
+  const configPath = path.join(os.homedir(), '.openclaw', 'openclaw.json')
+  const raw = fs.readFileSync(configPath, 'utf-8')
+  const config = JSON.parse(raw)
+  const token = config?.gateway?.auth?.token
+  if (!token) throw new Error('No gateway.auth.token found in ~/.openclaw/openclaw.json')
+  return token as string
+}
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -70,18 +81,13 @@ export async function critiqueAnimation(
   description: string,
   sceneFilter?: string
 ): Promise<CriticResult> {
-  const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) {
-    throw new Error('ANTHROPIC_API_KEY environment variable is required')
-  }
-
-  const client = new Anthropic({ apiKey })
+  const token = loadAuthToken()
   const keyFrames = selectKeyFrames(framesDir, sceneFilter)
 
   console.error(`Selected ${keyFrames.length} key frames: ${keyFrames.map((f) => f.frame).join(', ')}`)
 
-  // Build content blocks: text prompt + images
-  const content: Anthropic.MessageCreateParams['messages'][0]['content'] = []
+  // Build OpenAI-compatible message content with vision
+  const content: Array<Record<string, unknown>> = []
 
   content.push({
     type: 'text',
@@ -104,30 +110,41 @@ Respond with ONLY valid JSON in this exact format:
       text: `Frame ${frame.frame}:`,
     })
     content.push({
-      type: 'image',
-      source: {
-        type: 'base64',
-        media_type: 'image/png',
-        data: base64,
-      },
+      type: 'image_url',
+      image_url: { url: `data:image/png;base64,${base64}` },
     })
   }
 
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 1024,
-    temperature: 0,
-    messages: [{ role: 'user', content }],
+  const response = await fetch('http://localhost:18789/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      model: 'openclaw',
+      max_tokens: 1024,
+      temperature: 0,
+      messages: [{ role: 'user', content }],
+    }),
   })
 
-  // Extract text response
-  const textBlock = response.content.find((b) => b.type === 'text')
-  if (!textBlock || textBlock.type !== 'text') {
+  if (!response.ok) {
+    const body = await response.text()
+    throw new Error(`OpenClaw API error ${response.status}: ${body}`)
+  }
+
+  const data = (await response.json()) as {
+    choices: Array<{ message: { content: string } }>
+  }
+
+  const text = data.choices?.[0]?.message?.content
+  if (!text) {
     throw new Error('No text response from vision model')
   }
 
   // Parse JSON from response (handle markdown code fences)
-  let jsonStr = textBlock.text.trim()
+  let jsonStr = text.trim()
   const fenceMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/)
   if (fenceMatch) {
     jsonStr = fenceMatch[1].trim()

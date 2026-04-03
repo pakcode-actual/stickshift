@@ -9,15 +9,26 @@
  *   npx tsx scripts/animation-loop.ts <scene-json-path> <description> [--max-iterations N]
  *
  * Env:
- *   ANTHROPIC_API_KEY — required
+ *   Reads auth token from ~/.openclaw/openclaw.json (gateway.auth.token)
  */
 
-import Anthropic from '@anthropic-ai/sdk'
 import * as fs from 'fs'
 import * as path from 'path'
+import * as os from 'os'
 import { critiqueAnimation, type CriticResult } from './animation-critic.js'
 import { execSync } from 'child_process'
 import * as crypto from 'crypto'
+
+// ── OpenClaw auth ─────────────────────────────────────────────────────────
+
+function loadAuthToken(): string {
+  const configPath = path.join(os.homedir(), '.openclaw', 'openclaw.json')
+  const raw = fs.readFileSync(configPath, 'utf-8')
+  const config = JSON.parse(raw)
+  const token = config?.gateway?.auth?.token
+  if (!token) throw new Error('No gateway.auth.token found in ~/.openclaw/openclaw.json')
+  return token as string
+}
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -86,10 +97,7 @@ async function adjustParams(
   critique: CriticResult,
   description: string
 ): Promise<{ scene: SceneBeatJson; adjustments: string }> {
-  const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) throw new Error('ANTHROPIC_API_KEY required')
-
-  const client = new Anthropic({ apiKey })
+  const token = loadAuthToken()
 
   const prompt = `You are tuning a stick figure physics animation. The animation is described as: "${description}"
 
@@ -113,19 +121,35 @@ Respond with ONLY valid JSON in this exact format:
   "adjustments": "<brief description of what you changed and why>"
 }`
 
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 2048,
-    temperature: 0,
-    messages: [{ role: 'user', content: prompt }],
+  const response = await fetch('http://localhost:18789/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      model: 'openclaw',
+      max_tokens: 2048,
+      temperature: 0,
+      messages: [{ role: 'user', content: prompt }],
+    }),
   })
 
-  const textBlock = response.content.find((b) => b.type === 'text')
-  if (!textBlock || textBlock.type !== 'text') {
+  if (!response.ok) {
+    const body = await response.text()
+    throw new Error(`OpenClaw API error ${response.status}: ${body}`)
+  }
+
+  const data = (await response.json()) as {
+    choices: Array<{ message: { content: string } }>
+  }
+
+  const text = data.choices?.[0]?.message?.content
+  if (!text) {
     throw new Error('No text response from model')
   }
 
-  let jsonStr = textBlock.text.trim()
+  let jsonStr = text.trim()
   const fenceMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/)
   if (fenceMatch) jsonStr = fenceMatch[1].trim()
 
