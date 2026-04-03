@@ -105,6 +105,7 @@ interface SandboxState {
   beats: BeatEntry[]
   jointOverrides: Map<number, JointOverride>
   selectedJoint: number | null
+  pendingStep: boolean
   debug: {
     showTargetSkeleton: boolean
     showRapierDebug: boolean
@@ -131,6 +132,7 @@ async function main(): Promise<void> {
     beats,
     jointOverrides: new Map(),
     selectedJoint: null,
+    pendingStep: false,
     debug: {
       showTargetSkeleton: false,
       showRapierDebug: false,
@@ -405,7 +407,10 @@ function wireControls(): void {
   })
 
   btnStep.addEventListener('click', () => {
-    state?.driver?.stepForward()
+    if (state) {
+      state.pendingStep = true
+      state.driver?.stepForward()
+    }
     updateTransportButtons()
   })
 
@@ -654,13 +659,17 @@ function gameLoop(): void {
       const { physics, ctx: renderCtx, driver, activeScene } = state
 
       // Advance driver (auto-play tick)
+      let driverTicked = false
       if (driver && driver.isPlaying()) {
         driver.tick()
+        driverTicked = true
       }
 
-      // Step physics when a beat is loaded
-      if (activeScene && activeScene.lifecycle === 'active') {
+      // Step physics ONLY when the driver ticked (play mode or manual step)
+      // This locks physics to the driver's frame count — no free-running
+      if (activeScene && activeScene.lifecycle === 'active' && (driverTicked || state.pendingStep)) {
         stepPhysics(physics)
+        state.pendingStep = false
 
         // Apply joint overrides after scene-interpreter has set poses
         applyJointOverrides()
