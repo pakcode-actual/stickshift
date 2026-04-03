@@ -26,17 +26,17 @@
 - [x] Temperature=0 for reproducibility
 - [x] Test with The Kick scene captures from Phase B
 - [x] npm run build passes
-- [ ] git commit with message "feat: STI-6 Phase C — vision model critic"
+- [x] git commit with message "feat: STI-6 Phase C — vision model critic"
 
 ## Phase D: Closed-Loop Iteration (STI-7)
-- [ ] Create scripts/animation-loop.ts
-- [ ] Takes: Scene Beat JSON path + target description + max iterations (default 5)
-- [ ] Loop: load scene in sandbox → capture frames → vision critic → if score >= 7 done, else adjust params
-- [ ] The "adjust params" step: feed the critic's output to Claude (text model) asking it to modify the Scene Beat JSON motor stiffness, target angles, timing based on the critique
-- [ ] Log each iteration: { iteration, params_hash, score, critique, adjustments_made }
-- [ ] Save iteration log as captures/{scene}-iteration-log.json
-- [ ] Final output: optimized Scene Beat JSON + filmstrip of best iteration
-- [ ] npm run build passes
+- [x] Create scripts/animation-loop.ts
+- [x] Takes: Scene Beat JSON path + target description + max iterations (default 5)
+- [x] Loop: load scene in sandbox → capture frames → vision critic → if score >= 7 done, else adjust params
+- [x] The "adjust params" step: feed the critic's output to Claude (text model) asking it to modify the Scene Beat JSON motor stiffness, target angles, timing based on the critique
+- [x] Log each iteration: { iteration, params_hash, score, critique, adjustments_made }
+- [x] Save iteration log as captures/{scene}-iteration-log.json
+- [x] Final output: optimized Scene Beat JSON + filmstrip of best iteration
+- [x] npm run build passes
 - [ ] git commit with message "feat: STI-7 Phase D — closed-loop animation iteration"
 
 ## Completion
