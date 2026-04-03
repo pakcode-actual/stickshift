@@ -13,6 +13,7 @@
     "test:visual:update": "npx playwright test tests/visual --update-snapshots"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.82.0",
     "@chenglou/pretext": "^0.0.4",
     "@dimforge/rapier2d-compat": "^0.14.0",
     "gsap": "^3.12.7"
