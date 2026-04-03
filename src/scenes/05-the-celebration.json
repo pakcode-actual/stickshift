@@ -1,0 +1,70 @@
+{
+  "id": "the-celebration",
+  "title": "The Celebration",
+  "order": 5,
+  "scrollRange": [0.8, 1.0],
+  "transitionIn": { "type": "crossfade", "duration": 0.05 },
+  "transitionOut": { "type": "crossfade", "duration": 0.05 },
+  "actors": [
+    {
+      "type": "ragdoll",
+      "id": "figure",
+      "position": [0.5, 0.65]
+    },
+    {
+      "type": "particle-emitter",
+      "id": "confetti",
+      "position": [0.1, -0.1],
+      "count": 80,
+      "physics": {
+        "density": 0.2,
+        "restitution": 0.5,
+        "friction": 0.3,
+        "damping": 0.05,
+        "angularDamping": 0.1,
+        "gravityScale": 0.4
+      }
+    }
+  ],
+  "text": {
+    "content": "Particle systems are the fireworks of physics simulation. Each confetti piece is a tiny rigid body with its own mass, velocity, and angular momentum. Spawned with random initial velocities, they fan out in a burst pattern before gravity pulls them into graceful arcs.\n\nWhat makes particle effects convincing is variation. Each particle has a slightly different size, density, and initial velocity. Some spin faster, some float longer. The reduced gravity scale (0.4x) makes them drift lazily, giving the confetti that characteristic floating quality you see at celebrations.\n\nCollision detection scales with particle count. Each confetti piece can bounce off the ground, the ragdoll, and other particles. The physics engine uses broad-phase spatial indexing to efficiently test thousands of potential collisions per frame, keeping performance smooth even with 80 particles.\n\nThe reflow text mode brings us full circle — text wraps around physics bodies, creating negative space that makes the particles feel like they occupy the same world as the words. This hybrid rendering approach (DOM text + canvas physics) gives us the best of both worlds: accessible, selectable text and smooth, GPU-accelerated physics rendering.\n\nYou've now seen the full spectrum of active ragdoll physics: falling, running, kicking, climbing, posing, and celebrating. Five scenes, each driven by a simple JSON configuration, each demonstrating a different facet of physics simulation. The scene DSL makes it possible to author these experiences declaratively — no code changes needed, just data.",
+    "mode": "reflow"
+  },
+  "camera": {
+    "type": "zoom",
+    "offset": [0, 0],
+    "scale": 0.95
+  },
+  "physics": { "gravity": [0, 980] },
+  "beats": [
+    {
+      "scrollRange": [0.0, 0.05],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "standing",
+      "motorBlend": 1.0,
+      "motorStiffness": 50
+    },
+    {
+      "scrollRange": [0.05, 0.3],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "victory",
+      "motorBlend": 1.0,
+      "motorStiffness": 60
+    },
+    {
+      "scrollRange": [0.3, 0.31],
+      "action": "spawn-particles",
+      "target": "confetti"
+    },
+    {
+      "scrollRange": [0.35, 0.95],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "victory",
+      "motorBlend": 1.0,
+      "motorStiffness": 60
+    }
+  ]
+}

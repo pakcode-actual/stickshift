@@ -1,0 +1,76 @@
+{
+  "id": "the-climb",
+  "title": "The Climb",
+  "order": 3,
+  "scrollRange": [0.4, 0.6],
+  "transitionIn": { "type": "crossfade", "duration": 0.05 },
+  "transitionOut": { "type": "crossfade", "duration": 0.05 },
+  "actors": [
+    {
+      "type": "ragdoll",
+      "id": "figure",
+      "position": [0.3, 0.8]
+    },
+    {
+      "type": "prop",
+      "id": "platform1",
+      "propType": "platform",
+      "position": [0.3, 0.7]
+    },
+    {
+      "type": "prop",
+      "id": "platform2",
+      "propType": "platform",
+      "position": [0.5, 0.55]
+    },
+    {
+      "type": "prop",
+      "id": "platform3",
+      "propType": "platform",
+      "position": [0.35, 0.4]
+    },
+    {
+      "type": "prop",
+      "id": "platform4",
+      "propType": "platform",
+      "position": [0.55, 0.25]
+    }
+  ],
+  "text": {
+    "content": "Rigid body collisions are the foundation of platformer physics. When two bodies meet, the physics engine resolves the collision by computing contact points, applying normal forces to prevent overlap, and using friction to determine how surfaces grip.\n\nEach platform here is a kinematic body — it has a fixed position that won't move when the ragdoll lands on it. The ragdoll's feet, however, are dynamic bodies that respond to contact forces. This asymmetry creates the classic platform behavior: the character stands on surfaces without pushing them down.\n\nJoint constraints are what make ragdoll climbing possible. Each revolute joint connects two bodies at a pivot point, limiting their relative rotation to a specified range. The hip joints allow leg extension for stepping up, while shoulder joints allow arm reaching. Motor targets pull the limbs toward climbing poses.\n\nThe climbing animation alternates between two pose presets — climbing0 and climbing1 — each representing a different phase of the climb cycle. Arms reach overhead while legs push upward, creating a rhythmic ascent that looks natural despite being driven entirely by motor targets.\n\nConstraint solvers work iteratively. Each physics step, the solver passes over all constraints multiple times, gradually converging toward a valid state. More iterations mean more accurate constraints but higher CPU cost. The default of 4 iterations provides a good balance for real-time simulation.",
+    "mode": "platform",
+    "platformBlocks": ["Rigid body collisions", "Joint constraints", "Constraint solvers"]
+  },
+  "camera": {
+    "type": "pan",
+    "offset": [0, -150],
+    "scale": 1
+  },
+  "physics": { "gravity": [0, 980] },
+  "beats": [
+    {
+      "scrollRange": [0.0, 0.05],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "standing",
+      "motorBlend": 1.0,
+      "motorStiffness": 50
+    },
+    {
+      "scrollRange": [0.05, 0.9],
+      "action": "climb",
+      "target": "figure",
+      "motorBlend": 0.9,
+      "motorStiffness": 55,
+      "easing": "ease-in-out"
+    },
+    {
+      "scrollRange": [0.9, 1.0],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "victory",
+      "motorBlend": 1.0,
+      "motorStiffness": 60
+    }
+  ]
+}

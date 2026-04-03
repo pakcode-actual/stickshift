@@ -1,0 +1,176 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SceneBeat",
+  "description": "Declarative description of a single physics-driven scrollytelling scene",
+  "type": "object",
+  "required": ["id", "title", "order", "scrollRange", "actors", "text", "beats"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique scene identifier",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "title": {
+      "type": "string",
+      "description": "Human-readable scene name"
+    },
+    "order": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Position in scroll sequence"
+    },
+    "scrollRange": {
+      "type": "array",
+      "items": { "type": "number", "minimum": 0, "maximum": 1 },
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "Global scroll progress range [start, end]"
+    },
+    "transitionIn": { "$ref": "#/definitions/TransitionConfig" },
+    "transitionOut": { "$ref": "#/definitions/TransitionConfig" },
+    "actors": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/Actor" }
+    },
+    "text": { "$ref": "#/definitions/TextConfig" },
+    "camera": { "$ref": "#/definitions/CameraConfig" },
+    "physics": { "$ref": "#/definitions/PhysicsConfig" },
+    "beats": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/BeatStep" }
+    }
+  },
+  "definitions": {
+    "Actor": {
+      "type": "object",
+      "required": ["type", "id", "position"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ragdoll", "prop", "particle-emitter"]
+        },
+        "id": { "type": "string" },
+        "propType": {
+          "type": "string",
+          "enum": ["beach-ball", "box", "platform", "confetti"]
+        },
+        "position": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "velocity": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Particle count for particle-emitter type"
+        },
+        "physics": { "$ref": "#/definitions/ActorPhysicsConfig" }
+      }
+    },
+    "ActorPhysicsConfig": {
+      "type": "object",
+      "properties": {
+        "friction": { "type": "number", "minimum": 0 },
+        "restitution": { "type": "number", "minimum": 0, "maximum": 1 },
+        "density": { "type": "number", "minimum": 0 },
+        "damping": { "type": "number", "minimum": 0 },
+        "angularDamping": { "type": "number", "minimum": 0 },
+        "gravityScale": { "type": "number" }
+      }
+    },
+    "BeatStep": {
+      "type": "object",
+      "required": ["scrollRange", "action", "target"],
+      "properties": {
+        "scrollRange": {
+          "type": "array",
+          "items": { "type": "number", "minimum": 0, "maximum": 1 },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "action": { "type": "string" },
+        "target": { "type": "string" },
+        "motorBlend": { "type": "number", "minimum": 0, "maximum": 1 },
+        "impulse": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "pose": { "type": "string" },
+        "easing": {
+          "type": "string",
+          "enum": ["linear", "ease-in", "ease-out", "ease-in-out"],
+          "default": "linear"
+        }
+      }
+    },
+    "TextConfig": {
+      "type": "object",
+      "required": ["content", "mode"],
+      "properties": {
+        "content": { "type": "string" },
+        "mode": {
+          "type": "string",
+          "enum": ["reflow", "scatter", "platform", "line-by-line"]
+        },
+        "platformBlocks": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "CameraConfig": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["static", "follow", "pan", "zoom"],
+          "default": "static"
+        },
+        "target": { "type": "string" },
+        "offset": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "scale": { "type": "number", "minimum": 0.1, "default": 1 }
+      }
+    },
+    "PhysicsConfig": {
+      "type": "object",
+      "properties": {
+        "gravity": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "TransitionConfig": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["crossfade", "slide", "cut", "physics"],
+          "default": "crossfade"
+        },
+        "duration": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.2,
+          "default": 0.05
+        }
+      }
+    }
+  }
+}

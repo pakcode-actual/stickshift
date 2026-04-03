@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Animation Gym — Sandbox</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      background: #0a0a0a;
+      color: #c0c0c0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      line-height: 1.4;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+    }
+
+    #sandbox-root {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    #sandbox-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Control overlay ── */
+    #controls {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      z-index: 10;
+      flex-wrap: wrap;
+    }
+
+    #controls label {
+      font-size: 11px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    #controls select,
+    #controls button {
+      background: #1a1a1a;
+      color: #c0c0c0;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    #controls select:hover,
+    #controls button:hover {
+      border-color: #555;
+      background: #222;
+    }
+
+    #controls button:active {
+      background: #2a2a2a;
+    }
+
+    #controls .transport {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #controls .timeline {
+      flex: 1;
+      min-width: 120px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #timeline-scrubber {
+      flex: 1;
+      accent-color: #e0e0e0;
+      height: 4px;
+    }
+
+    #frame-display {
+      font-family: 'Inter', monospace;
+      font-size: 12px;
+      color: #666;
+      min-width: 80px;
+      text-align: right;
+    }
+
+    /* ── Top-right debug toggles ── */
+    #debug-panel {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 10;
+    }
+
+    #debug-panel label {
+      font-size: 11px;
+      color: #666;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    #debug-panel input[type="checkbox"] {
+      accent-color: #e0e0e0;
+    }
+
+    /* ── Joint tuning panel ── */
+    #tuning-panel {
+      position: absolute;
+      top: 12px;
+      left: 16px;
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 12px 16px;
+      z-index: 10;
+      display: none;
+      min-width: 220px;
+    }
+
+    #tuning-panel h3 {
+      font-size: 11px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    #tuning-panel .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    #tuning-panel .slider-row label {
+      font-size: 12px;
+      color: #888;
+      min-width: 60px;
+    }
+
+    #tuning-panel .slider-row input[type="range"] {
+      flex: 1;
+      accent-color: #e0e0e0;
+    }
+
+    #tuning-panel .slider-row .value {
+      font-size: 11px;
+      color: #666;
+      min-width: 50px;
+      text-align: right;
+      font-family: 'Inter', monospace;
+    }
+
+    /* ── HUD ── */
+    #sandbox-hud {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: #555;
+      font-family: 'Inter', monospace;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* ── Empty state ── */
+    #empty-state {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: #555;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    #empty-state h2 {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: #777;
+      margin-bottom: 8px;
+    }
+
+    #empty-state p {
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="sandbox-root">
+    <canvas id="sandbox-canvas"></canvas>
+
+    <div id="empty-state">
+      <h2>Animation Gym</h2>
+      <p>Select a Scene Beat to begin</p>
+    </div>
+
+    <div id="sandbox-hud"></div>
+
+    <div id="debug-panel">
+      <label><input type="checkbox" id="toggle-target-skeleton"> Target Skeleton</label>
+      <label><input type="checkbox" id="toggle-rapier-debug"> Rapier Debug</label>
+    </div>
+
+    <div id="tuning-panel">
+      <h3>Joint Motor Tuning</h3>
+      <div class="slider-row">
+        <label>Joint</label>
+        <select id="joint-select"></select>
+      </div>
+      <div class="slider-row">
+        <label>Stiffness</label>
+        <input type="range" id="slider-stiffness" min="0" max="1200" step="1" value="600">
+        <span class="value" id="val-stiffness">600</span>
+      </div>
+      <div class="slider-row">
+        <label>Damping</label>
+        <input type="range" id="slider-damping" min="0" max="120" step="1" value="60">
+        <span class="value" id="val-damping">60</span>
+      </div>
+      <div class="slider-row">
+        <label>Angle</label>
+        <input type="range" id="slider-angle" min="-3.14159" max="3.14159" step="0.01" value="0">
+        <span class="value" id="val-angle">0.00</span>
+      </div>
+    </div>
+
+    <div id="controls">
+      <div>
+        <label>Beat</label>
+        <select id="beat-selector">
+          <option value="">— select —</option>
+        </select>
+      </div>
+
+      <div class="transport">
+        <button id="btn-play" title="Play">&#9654;</button>
+        <button id="btn-pause" title="Pause" disabled>&#9646;&#9646;</button>
+        <button id="btn-step" title="Step Forward">&#9654;|</button>
+      </div>
+
+      <div class="timeline">
+        <input type="range" id="timeline-scrubber" min="0" max="1" step="0.001" value="0">
+        <span id="frame-display">0 / 0</span>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/sandbox.ts"></script>
+</body>
+</html>

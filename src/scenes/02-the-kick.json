@@ -1,0 +1,87 @@
+{
+  "id": "the-kick",
+  "title": "The Kick",
+  "order": 2,
+  "scrollRange": [0.2, 0.4],
+  "transitionIn": { "type": "crossfade", "duration": 0.05 },
+  "transitionOut": { "type": "crossfade", "duration": 0.05 },
+  "actors": [
+    {
+      "type": "ragdoll",
+      "id": "figure",
+      "position": [0.15, 0.7]
+    },
+    {
+      "type": "prop",
+      "id": "kickball",
+      "propType": "beach-ball",
+      "position": [0.55, 0.72]
+    }
+  ],
+  "text": {
+    "content": "Impulse is a sudden force applied over an instant — a kick, a punch, a collision. Unlike continuous forces like gravity, an impulse transfers momentum in a single frame. When our stick figure's foot connects with the ball, we apply an impulse vector that encodes both direction and magnitude.\n\nMomentum is conserved in every collision. The ball's post-kick velocity depends on the impulse force, the ball's mass, and its coefficient of restitution (bounciness). A beach ball with high restitution bounces energetically; a bowling ball with low restitution would barely move.\n\nWatch the ball fly through the text — this is the 'scatter' text mode. As the ball passes through the text area, words are displaced outward from the impact point. The displacement force decreases with distance, creating a ripple effect that makes the text feel like a physical medium rather than static content.\n\nThe running animation you see is driven entirely by motor blend targets. Each step alternates between two pose presets — running0 and running1 — cycling leg and arm positions to simulate a stride. The motors track these target angles with configurable stiffness, creating a convincing run cycle from simple joint rotations.\n\nThis demonstrates how complex-looking animations can emerge from simple rules. No keyframes, no tweening libraries — just physics motors tracking target poses, and the simulation handles all the in-between states naturally.",
+    "mode": "scatter"
+  },
+  "camera": {
+    "type": "follow",
+    "offset": [0, 0],
+    "scale": 1
+  },
+  "physics": { "gravity": [0, 980] },
+  "beats": [
+    {
+      "scrollRange": [0.0, 0.03],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "standing",
+      "motorBlend": 0.9,
+      "motorStiffness": 50
+    },
+    {
+      "scrollRange": [0.03, 0.5],
+      "action": "run",
+      "target": "figure",
+      "motorBlend": 0.85,
+      "motorStiffness": 50,
+      "easing": "ease-in-out"
+    },
+    {
+      "scrollRange": [0.5, 0.55],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "windup",
+      "motorBlend": 0.9,
+      "motorStiffness": 60
+    },
+    {
+      "scrollRange": [0.55, 0.62],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "kick-extend",
+      "motorBlend": 0.9,
+      "motorStiffness": 60
+    },
+    {
+      "scrollRange": [0.62, 0.63],
+      "action": "impulse",
+      "target": "kickball",
+      "impulse": [-400, -200]
+    },
+    {
+      "scrollRange": [0.65, 0.75],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "landing",
+      "motorBlend": 0.9,
+      "motorStiffness": 50
+    },
+    {
+      "scrollRange": [0.75, 0.95],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "standing",
+      "motorBlend": 0.9,
+      "motorStiffness": 50
+    }
+  ]
+}

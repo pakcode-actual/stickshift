@@ -1,0 +1,83 @@
+{
+  "id": "the-fall",
+  "title": "The Fall",
+  "order": 1,
+  "scrollRange": [0.0, 0.2],
+  "transitionIn": { "type": "cut", "duration": 0 },
+  "transitionOut": { "type": "crossfade", "duration": 0.05 },
+  "actors": [
+    {
+      "type": "ragdoll",
+      "id": "figure",
+      "position": [0.5, -0.15]
+    },
+    {
+      "type": "prop",
+      "id": "ball",
+      "propType": "beach-ball",
+      "position": [0.75, -0.6]
+    }
+  ],
+  "text": {
+    "content": "Every journey begins with a fall. In physics simulation, gravity is the most fundamental force — a constant downward acceleration of 9.8 meters per second squared. Watch as our stick figure, a ragdoll made of ten rigid bodies connected by nine revolute joints, succumbs to this invisible pull.\n\nThe ragdoll doesn't just fall — it falls with style. Each joint has a motor that can track a target angle with configurable stiffness and damping. When the motors are engaged, the figure holds its pose against gravity. When they release, the body collapses naturally, each limb following its own path through space.\n\nThis is the essence of \"active ragdoll\" physics: the blend between controlled pose-tracking and passive ragdoll simulation. A blend value of 1.0 means full motor control — the figure stands tall. A blend of 0.0 means complete surrender to physics — the figure becomes a puppet with cut strings.\n\nThe moment of impact is where physics gets interesting. Collision detection determines when bodies touch, contact forces prevent interpenetration, and friction determines how surfaces grip each other. The figure doesn't just hit the ground — it interacts with it, each body part settling into a physically plausible resting position.\n\nRecovery is the reverse journey. Motors gradually increase their stiffness, fighting gravity to pull each limb back toward the standing pose. The blend value ramps from 0 to 1 over the scroll range, creating a smooth transition that looks like a character pulling itself together after a fall.",
+    "mode": "reflow"
+  },
+  "camera": { "type": "static" },
+  "physics": { "gravity": [0, 980] },
+  "beats": [
+    {
+      "scrollRange": [0.0, 0.05],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "falling",
+      "motorBlend": 0.9,
+      "motorStiffness": 8
+    },
+    {
+      "scrollRange": [0.05, 0.07],
+      "action": "drop",
+      "target": "figure",
+      "motorBlend": 0.7,
+      "motorStiffness": 8
+    },
+    {
+      "scrollRange": [0.07, 0.25],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "falling",
+      "motorBlend": 0.6,
+      "motorStiffness": 10
+    },
+    {
+      "scrollRange": [0.25, 0.26],
+      "action": "go-limp",
+      "target": "figure"
+    },
+    {
+      "scrollRange": [0.45, 0.65],
+      "action": "ramp-pose",
+      "target": "figure",
+      "pose": "crouching",
+      "motorBlend": 0.7,
+      "motorStiffness": 50,
+      "easing": "ease-out"
+    },
+    {
+      "scrollRange": [0.65, 0.85],
+      "action": "ramp-pose",
+      "target": "figure",
+      "pose": "standing",
+      "motorBlend": 0.9,
+      "motorStiffness": 60,
+      "easing": "ease-in-out"
+    },
+    {
+      "scrollRange": [0.85, 1.0],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "standing",
+      "motorBlend": 0.9,
+      "motorStiffness": 60
+    }
+  ]
+}

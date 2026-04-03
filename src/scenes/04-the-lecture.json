@@ -1,0 +1,47 @@
+{
+  "id": "the-lecture",
+  "title": "The Lecture",
+  "order": 4,
+  "scrollRange": [0.6, 0.8],
+  "transitionIn": { "type": "crossfade", "duration": 0.05 },
+  "transitionOut": { "type": "crossfade", "duration": 0.05 },
+  "actors": [
+    {
+      "type": "ragdoll",
+      "id": "figure",
+      "position": [0.12, 0.65]
+    }
+  ],
+  "text": {
+    "content": "Motor blend is the secret ingredient of active ragdoll physics. It controls the transition between two extremes: fully controlled animation and fully passive ragdoll.\n\nAt blend = 1.0, every joint motor fires at maximum stiffness. The figure holds its target pose rigidly, resisting gravity and external forces. This looks like traditional animation — precise, controlled, predictable.\n\nAt blend = 0.0, all motors are disabled. The figure becomes a true ragdoll, each limb free to swing under gravity and momentum. This is what makes ragdoll physics look so natural — the emergent behavior of interconnected rigid bodies.\n\nThe magic happens in between. A blend of 0.5 creates a figure that tries to hold its pose but can be knocked around. A blend of 0.3 gives a drunk, wobbly character that barely maintains balance. Each value tells a different story.\n\nPose targeting adds another dimension. Instead of tracking a single standing pose, motors can target any configuration of joint angles. A pointing pose extends one arm forward. A victory pose raises both arms. The same motor blend system smoothly transitions between any pair of poses.\n\nThis is declarative physics animation. The scene JSON specifies what should happen — 'hold pose: pointing at blend 1.0' — and the physics engine figures out how to make it happen. No hand-crafted keyframes, no animation curves. Just target states and physical constraints.",
+    "mode": "line-by-line"
+  },
+  "camera": { "type": "static" },
+  "physics": { "gravity": [0, 980] },
+  "beats": [
+    {
+      "scrollRange": [0.0, 0.05],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "standing",
+      "motorBlend": 1.0,
+      "motorStiffness": 200
+    },
+    {
+      "scrollRange": [0.05, 0.95],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "pointing",
+      "motorBlend": 1.0,
+      "motorStiffness": 200
+    },
+    {
+      "scrollRange": [0.95, 1.0],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "standing",
+      "motorBlend": 1.0,
+      "motorStiffness": 200
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ragdoll Scrollytelling</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      background: #0a0a0a;
+      color: #a0a0a0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 18px;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* Spacer before the pinned scene */
+    .spacer {
+      height: 30vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .spacer h1 {
+      font-size: 2.5rem;
+      font-weight: 500;
+      color: #e0e0e0;
+      text-align: center;
+      opacity: 0.9;
+    }
+
+    .spacer p {
+      text-align: center;
+      margin-top: 0.5rem;
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    /* The pinned scene container */
+    #scene-container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Text layer — DOM spans positioned by Pretext */
+    #text-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      user-select: text;
+    }
+
+    #text-layer span {
+      position: absolute;
+      white-space: nowrap;
+      color: #a0a0a0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 18px;
+      line-height: 26px;
+      pointer-events: auto;
+    }
+
+    /* Canvas overlay for physics rendering */
+    #physics-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    /* Ground line */
+    #ground-line {
+      position: absolute;
+      bottom: 60px;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: #333;
+    }
+
+    /* HUD overlay */
+    #hud {
+      position: fixed;
+      top: 12px;
+      right: 16px;
+      font-size: 12px;
+      color: #555;
+      font-family: 'Inter', monospace;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    /* Progress indicator */
+    #progress-indicator {
+      position: fixed;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .progress-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(160, 160, 160, 0.2);
+      border: 1px solid rgba(160, 160, 160, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .progress-dot.active {
+      background: rgba(224, 224, 224, 0.8);
+      border-color: rgba(224, 224, 224, 0.6);
+      box-shadow: 0 0 8px rgba(224, 224, 224, 0.3);
+      transform: scale(1.3);
+    }
+
+    /* Bottom spacer for scroll room */
+    .bottom-spacer {
+      height: 40vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bottom-spacer p {
+      color: #444;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="spacer">
+    <div>
+      <h1>Ragdoll Scrollytelling</h1>
+      <p>Scroll down to begin &darr;</p>
+    </div>
+  </div>
+
+  <div id="scene-container" aria-label="Interactive physics animation scene">
+    <div id="text-layer" role="article"></div>
+    <canvas id="physics-canvas"></canvas>
+    <div id="ground-line"></div>
+  </div>
+
+  <div class="bottom-spacer" style="height: 200vh;">
+    <p>fin.</p>
+  </div>
+
+  <div id="hud"></div>
+  <div id="progress-indicator"></div>
+
+  <noscript>
+    <div style="padding: 2rem; max-width: 700px; margin: 0 auto; color: #a0a0a0; font-family: 'Inter', sans-serif; line-height: 1.6;">
+      <h2 style="color: #e0e0e0;">Ragdoll Scrollytelling</h2>
+      <p>Physics simulation brings digital worlds to life. Every object in this scene follows Newton's laws of motion — forces, mass, and acceleration working together to create believable movement. The stick figure you see is a ragdoll: a collection of rigid bodies connected by joints, each obeying the same physical rules that govern the real world.</p>
+      <p>What makes this ragdoll special is its "active" nature. Unlike a simple ragdoll that just flops around, this one has motorized joints that can track target poses. When the motors are strong, the figure holds its shape. When they go to zero, it collapses naturally under gravity.</p>
+      <p>The text you're reading right now is being laid out in real-time, every single frame. As physics bodies move through the text area, the layout engine carves out space around them.</p>
+      <p>This technique is called scrollytelling — using scroll position to drive a narrative experience. The rendering uses a hybrid approach: text is rendered as DOM elements for accessibility, while physics objects are drawn on a transparent canvas overlay.</p>
+      <p style="color: #666; margin-top: 2rem;"><em>Enable JavaScript to see the interactive physics animation.</em></p>
+    </div>
+  </noscript>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
