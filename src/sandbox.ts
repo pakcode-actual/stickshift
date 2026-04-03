@@ -14,10 +14,21 @@ import { SandboxDriver } from './playback'
 
 // ─── Window augmentation for determinism testing ───────────────────────────
 
+interface FrameCapture {
+  frame: number
+  timestamp: number
+  hash: string
+  dataUrl: string
+}
+
 declare global {
   interface Window {
     __physicsHash?: string
     __stepAndHash?: (frames: number) => Promise<string>
+    __deterministicCapture?: (
+      totalFrames: number,
+      captureEvery: number
+    ) => Promise<FrameCapture[]>
   }
 }
 
@@ -201,6 +212,76 @@ async function main(): Promise<void> {
     const hash = await hashSnapshot(snapshot)
     window.__physicsHash = hash
     return hash
+  }
+
+  // Expose deterministic frame capture for Playwright frame-capture tests.
+  // Reinitializes physics, steps frame-by-frame, captures canvas + hash at intervals.
+  window.__deterministicCapture = async (
+    totalFrames: number,
+    captureEvery: number
+  ): Promise<FrameCapture[]> => {
+    if (!state) throw new Error('Sandbox not initialized')
+
+    const currentBeatId = beatSelector.value
+    if (!currentBeatId) throw new Error('No beat selected')
+
+    // Tear down existing scene
+    if (state.activeScene && state.activeScene.lifecycle === 'active') {
+      deactivateScene(state.activeScene, state.physics)
+    }
+    if (state.driver) {
+      state.driver.destroy()
+    }
+    state.jointOverrides.clear()
+
+    // Reinitialize physics world from scratch for full determinism
+    seedRng(42)
+    const rect = canvas.parentElement!.getBoundingClientRect()
+    const freshPhysics = await initPhysics(rect.width, rect.height)
+    state.physics = freshPhysics
+
+    const entry = state.beats.find((b) => b.id === currentBeatId)!
+    const instance = createSceneInstance(entry.beat)
+    activateScene(instance, freshPhysics)
+    state.activeScene = instance
+
+    const driverFrames = 300
+    const driver = new SandboxDriver(driverFrames)
+    driver.setLooping(false)
+    driver.play()
+    state.driver = driver
+
+    const captures: FrameCapture[] = []
+    const startTime = performance.now()
+
+    for (let i = 1; i <= totalFrames; i++) {
+      driver.tick()
+      const localP = getLocalProgress(
+        instance,
+        remapProgressToScroll(instance, driver.getProgress())
+      )
+      updateScene(instance, localP, freshPhysics)
+      stepPhysics(freshPhysics)
+
+      if (i % captureEvery === 0) {
+        // Render the current state to the canvas
+        render(state.ctx, canvas, freshPhysics, undefined, instance.dynamicBodies)
+
+        const dataUrl = canvas.toDataURL('image/png')
+        const snapshot = freshPhysics.world.takeSnapshot()
+        const hash = await hashSnapshot(snapshot)
+
+        captures.push({
+          frame: i,
+          timestamp: performance.now() - startTime,
+          hash,
+          dataUrl,
+        })
+      }
+    }
+
+    driver.pause()
+    return captures
   }
 
   // Start game loop

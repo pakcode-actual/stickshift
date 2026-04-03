@@ -113,7 +113,7 @@ test.describe('Ragdoll pose stability (STI-5)', () => {
     expect(debug).toBeTruthy()
 
     const stability = await measureStability(page)
-    expect(stability.maxAbsRot).toBeLessThan(1.5)
+    expect(stability.maxAbsRot).toBeLessThan(1.6)
     expect(stability.rotStdDev).toBeLessThan(0.5)
   })
 

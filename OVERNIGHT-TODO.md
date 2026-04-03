@@ -1,19 +1,19 @@
 # Stick Figure Storytelling — Overnight Build
 **Worker status:** RUNNING
 **Last worker:** watchdog-2026-04-02-2337
-**Last updated:** 2026-04-03 00:00 PDT
+**Last updated:** 2026-04-03 06:50 UTC
 ---
 
 ## Phase B: Playwright Frame Capture Pipeline (STI-5)
-- [ ] Create tests/animation/frame-capture.spec.ts
-- [ ] Load sandbox.html, select scene via dropdown
-- [ ] Step frame-by-frame using sandbox Step button (click btn-step)
-- [ ] Capture screenshot every 10 frames, store as captures/{scene}-frame-{N}.png
-- [ ] Run twice and assert screenshots are pixel-identical (determinism proof)
-- [ ] Export frame sequence metadata as JSON (frame number, timestamp, physics hash)
-- [ ] npm run build passes
-- [ ] npm test passes
-- [ ] Deploy to ragdoll-test.slugbug.ai via: CLOUDFLARE_API_TOKEN=$(grep CLOUDFLARE_API_TOKEN ~/.openclaw/workspace/.env | cut -d= -f2) CLOUDFLARE_ACCOUNT_ID=7eb696b430f2bd51aa1e239d050aba90 wrangler pages deploy dist/ --project-name ragdoll-test --branch main --commit-dirty=true
+- [x] Create tests/animation/frame-capture.spec.ts
+- [x] Load sandbox.html, select scene via dropdown
+- [x] Step frame-by-frame using sandbox Step button (click btn-step)
+- [x] Capture screenshot every 10 frames, store as captures/{scene}-frame-{N}.png
+- [x] Run twice and assert screenshots are pixel-identical (determinism proof)
+- [x] Export frame sequence metadata as JSON (frame number, timestamp, physics hash)
+- [x] npm run build passes
+- [x] npm test passes
+- [x] Deploy to ragdoll-test.slugbug.ai via: CLOUDFLARE_API_TOKEN=$(grep CLOUDFLARE_API_TOKEN ~/.openclaw/workspace/.env | cut -d= -f2) CLOUDFLARE_ACCOUNT_ID=7eb696b430f2bd51aa1e239d050aba90 wrangler pages deploy dist/ --project-name ragdoll-test --branch main --commit-dirty=true
 - [ ] git commit with message "feat: STI-5 Phase B — frame capture pipeline"
 
 ## Phase C: Vision Model Animation Critic (STI-6)
