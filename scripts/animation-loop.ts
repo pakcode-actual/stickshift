@@ -18,6 +18,11 @@ import * as os from 'os'
 import { critiqueAnimation, type CriticResult } from './animation-critic.js'
 import { execSync } from 'child_process'
 import * as crypto from 'crypto'
+import { fileURLToPath } from 'url'
+
+// ESM __dirname equivalent
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 // ── OpenClaw auth ─────────────────────────────────────────────────────────
 
@@ -196,9 +201,22 @@ async function runLoop(
     // Capture frames
     captureFramesViaPlaywright(sceneId)
 
-    // Run vision critic
-    console.error(`  Running vision critic...`)
-    const critique = await critiqueAnimation(capturesDir, description, sceneId)
+    // Post-process frames for vision model visibility
+    console.error(`  Enhancing frames for vision model...`)
+    const enhancedDir = path.join(capturesDir, 'enhanced')
+    try {
+      execSync(
+        `python3 scripts/enhance-frames.py captures ${sceneId}`,
+        { cwd: path.resolve(__dirname, '..'), stdio: ['ignore', 'pipe', 'pipe'], timeout: 30_000 }
+      )
+    } catch (err) {
+      console.error(`  Warning: frame enhancement failed, using raw frames`)
+    }
+
+    // Run vision critic on enhanced frames (fall back to raw if enhanced dir missing)
+    const criticDir = fs.existsSync(enhancedDir) ? enhancedDir : capturesDir
+    console.error(`  Running vision critic on ${criticDir === enhancedDir ? 'enhanced' : 'raw'} frames...`)
+    const critique = await critiqueAnimation(criticDir, description, sceneId)
     console.error(`  Score: ${critique.score}/10`)
     console.error(`  Summary: ${critique.summary}`)
 

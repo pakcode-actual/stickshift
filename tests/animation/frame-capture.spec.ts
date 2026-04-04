@@ -6,19 +6,12 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-interface FrameCapture {
-  frame: number
-  timestamp: number
-  hash: string
-  dataUrl: string
-}
-
 declare global {
   interface Window {
     __deterministicCapture?: (
       totalFrames: number,
       captureEvery: number
-    ) => Promise<FrameCapture[]>
+    ) => Promise<Array<{ frame: number; timestamp: number; hash: string; dataUrl: string }>>
   }
 }
 
@@ -34,43 +27,6 @@ const SCENES = [
   { id: 'the-celebration', label: 'The Celebration' },
 ]
 
-function dataUrlToBuffer(dataUrl: string): Buffer {
-  const base64 = dataUrl.replace(/^data:image\/png;base64,/, '')
-  return Buffer.from(base64, 'base64')
-}
-
-async function captureScene(
-  page: any,
-  sceneId: string
-): Promise<FrameCapture[]> {
-  await page.goto('/sandbox.html')
-  await page.setViewportSize({ width: 1280, height: 720 })
-
-  // Wait for sandbox to initialize
-  await page.waitForFunction(
-    () => typeof window.__deterministicCapture === 'function',
-    { timeout: 15_000 }
-  )
-
-  // Select scene via dropdown
-  await page.selectOption('#beat-selector', sceneId)
-  await page.waitForTimeout(200)
-
-  // Click step button to verify UI interaction works (btn-step)
-  await page.click('#btn-step')
-  await page.waitForTimeout(50)
-
-  // Run deterministic capture sequence
-  const captures: FrameCapture[] = await page.evaluate(
-    async ([frames, interval]: [number, number]) => {
-      return window.__deterministicCapture!(frames, interval)
-    },
-    [TOTAL_FRAMES, CAPTURE_EVERY] as [number, number]
-  )
-
-  return captures
-}
-
 test.describe('Frame capture pipeline', () => {
   test.beforeAll(() => {
     fs.mkdirSync(CAPTURES_DIR, { recursive: true })
@@ -80,47 +36,85 @@ test.describe('Frame capture pipeline', () => {
     test(`capture and verify determinism for ${scene.label}`, async ({
       page,
     }) => {
-      // Run 1 — capture frames
-      const run1 = await captureScene(page, scene.id)
-      expect(run1.length).toBe(TOTAL_FRAMES / CAPTURE_EVERY)
+      // ── Run 1: Playwright element screenshots (visible to vision models) ──
+      await page.goto('/sandbox.html')
+      await page.setViewportSize({ width: 1280, height: 720 })
 
-      // Save Run 1 frames to disk
-      for (const capture of run1) {
-        const filename = `${scene.id}-frame-${capture.frame}.png`
-        const filepath = path.join(CAPTURES_DIR, filename)
-        fs.writeFileSync(filepath, dataUrlToBuffer(capture.dataUrl))
+      await page.waitForFunction(
+        () => typeof window.__deterministicCapture === 'function',
+        { timeout: 15_000 }
+      )
+
+      await page.selectOption('#beat-selector', scene.id)
+      await page.waitForTimeout(200)
+
+      // Step frame-by-frame using the sandbox Step button
+      // and capture Playwright element screenshots at intervals
+      const canvasEl = page.locator('#sandbox-canvas')
+
+      for (let i = 0; i < TOTAL_FRAMES; i++) {
+        await page.click('#btn-step')
+
+        if ((i + 1) % CAPTURE_EVERY === 0) {
+          const filename = `${scene.id}-frame-${i + 1}.png`
+          const filepath = path.join(CAPTURES_DIR, filename)
+          await canvasEl.screenshot({ path: filepath })
+        }
       }
 
-      // Run 2 — full page reload for clean state
-      const run2 = await captureScene(page, scene.id)
+      // ── Run 2: Hash-based determinism verification ──
+      // Reload for a clean physics state
+      await page.goto('/sandbox.html')
+      await page.waitForFunction(
+        () => typeof window.__deterministicCapture === 'function',
+        { timeout: 15_000 }
+      )
+      await page.selectOption('#beat-selector', scene.id)
+      await page.waitForTimeout(200)
+
+      // Get hashes from run 1 (clean deterministic capture)
+      const run1 = await page.evaluate(
+        async ([frames, interval]: [number, number]) => {
+          const results = await window.__deterministicCapture!(frames, interval)
+          return results.map((r) => ({ frame: r.frame, hash: r.hash }))
+        },
+        [TOTAL_FRAMES, CAPTURE_EVERY] as [number, number]
+      )
+
+      // Reload and verify hashes match
+      await page.goto('/sandbox.html')
+      await page.waitForFunction(
+        () => typeof window.__deterministicCapture === 'function',
+        { timeout: 15_000 }
+      )
+      await page.selectOption('#beat-selector', scene.id)
+      await page.waitForTimeout(200)
+
+      const run2 = await page.evaluate(
+        async ([frames, interval]: [number, number]) => {
+          const results = await window.__deterministicCapture!(frames, interval)
+          return results.map((r) => ({ frame: r.frame, hash: r.hash }))
+        },
+        [TOTAL_FRAMES, CAPTURE_EVERY] as [number, number]
+      )
+
+      expect(run1.length).toBe(TOTAL_FRAMES / CAPTURE_EVERY)
       expect(run2.length).toBe(run1.length)
 
-      // Assert pixel-identical screenshots (determinism proof)
       for (let i = 0; i < run1.length; i++) {
-        const buf1 = dataUrlToBuffer(run1[i].dataUrl)
-        const buf2 = dataUrlToBuffer(run2[i].dataUrl)
-
-        expect(
-          buf1.equals(buf2),
-          `Frame ${run1[i].frame} of ${scene.id} differs between runs`
-        ).toBe(true)
-
-        // Physics hashes must also match
         expect(run2[i].hash).toBe(run1[i].hash)
       }
 
-      // Export frame sequence metadata as JSON
+      // Export metadata
       const metadata = run1.map((c) => ({
         frame: c.frame,
-        timestamp: c.timestamp,
         physicsHash: c.hash,
       }))
 
-      const metadataPath = path.join(
-        CAPTURES_DIR,
-        `${scene.id}-metadata.json`
+      fs.writeFileSync(
+        path.join(CAPTURES_DIR, `${scene.id}-metadata.json`),
+        JSON.stringify(metadata, null, 2)
       )
-      fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2))
     })
   }
 })

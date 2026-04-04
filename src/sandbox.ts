@@ -269,6 +269,8 @@ async function main(): Promise<void> {
         // Render the current state to the canvas
         render(state.ctx, canvas, freshPhysics, undefined, instance.dynamicBodies)
 
+        // Force pixel readback before toDataURL — ensures GPU compositing flushes
+        state.ctx.getImageData(0, 0, 1, 1)
         const dataUrl = canvas.toDataURL('image/png')
         const snapshot = freshPhysics.world.takeSnapshot()
         const hash = await hashSnapshot(snapshot)

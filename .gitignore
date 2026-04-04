@@ -7,3 +7,6 @@ dist/
 *.tmp
 *.swp
 .mcp.json
+
+captures/
+test-results/

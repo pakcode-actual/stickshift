@@ -15,6 +15,8 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as os from 'os'
+import { fileURLToPath } from 'url'
+import { pathToFileURL } from 'url'
 
 // ── OpenClaw auth ─────────────────────────────────────────────────────────
 
@@ -85,9 +87,13 @@ export async function critiqueAnimation(
   const keyFrames = selectKeyFrames(framesDir, sceneFilter)
 
   console.error(`Selected ${keyFrames.length} key frames: ${keyFrames.map((f) => f.frame).join(', ')}`)
+  
+  // Limit to 5 frames max to avoid API issues with too many images
+  const framesToUse = keyFrames.slice(0, Math.min(5, keyFrames.length))
+  console.error(`Using ${framesToUse.length} frames for vision API call`)
 
   // Build OpenAI-compatible message content with vision
-  const content: Array<Record<string, unknown>> = []
+  const content: Array<{ type: string; text?: string; image_url?: { url: string; detail?: string } }> = []
 
   content.push({
     type: 'text',
@@ -117,7 +123,7 @@ Respond with ONLY valid JSON in this exact format:
 }`,
   })
 
-  for (const frame of keyFrames) {
+  for (const frame of framesToUse) {
     const data = fs.readFileSync(frame.path)
     const base64 = data.toString('base64')
 
@@ -125,9 +131,12 @@ Respond with ONLY valid JSON in this exact format:
       type: 'text',
       text: `Frame ${frame.frame}:`,
     })
+    
     content.push({
       type: 'image_url',
-      image_url: { url: `data:image/png;base64,${base64}` },
+      image_url: {
+        url: `data:image/png;base64,${base64}`
+      },
     })
   }
 
@@ -215,7 +224,10 @@ async function main(): Promise<void> {
   console.log(JSON.stringify(result, null, 2))
 }
 
-main().catch((err) => {
-  console.error('Error:', err instanceof Error ? err.message : err)
-  process.exit(1)
-})
+// Only run main() if this file is executed directly (not imported as a module)
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((err) => {
+    console.error('Error:', err instanceof Error ? err.message : err)
+    process.exit(1)
+  })
+}
