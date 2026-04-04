@@ -99,21 +99,29 @@ async function adjustParams(
 ): Promise<{ scene: SceneBeatJson; adjustments: string }> {
   const token = loadAuthToken()
 
-  const prompt = `You are tuning a stick figure physics animation. The animation is described as: "${description}"
+  const prompt = `You are tuning the SKELETAL CHOREOGRAPHY of a stick figure animation. The movement sequence is: "${description}"
 
-Current Scene Beat JSON (the "beats" array controls the animation):
+Current Scene Beat JSON (the "beats" array controls the skeleton's movement):
 ${JSON.stringify(scene.beats, null, 2)}
 
-The vision critic scored this animation ${critique.score}/10 and reported these issues:
+A critic evaluated the skeletal animation quality and scored it ${critique.score}/10.
+Issues found (all relate to the skeleton's poses and movement, NOT physics):
 ${JSON.stringify(critique.issues, null, 2)}
 
 Summary: ${critique.summary}
 
-Suggest specific modifications to the beats array to improve the animation quality. You can adjust:
-- motorStiffness (higher = snappier pose changes, typical range 30-200)
-- motorBlend (0-1, how strongly the motor drives toward the target pose)
-- scrollRange timing (adjust when actions start/end)
-- impulse vectors (direction and magnitude)
+Your job: adjust the beats to improve how the skeleton POSES and MOVES. You can tune:
+- motorStiffness (how rigidly joints hold their target angles; 8 = loose/floppy, 200 = snappy/rigid, 600 = locked)
+- motorBlend (0-1, interpolation strength toward target pose; 0 = limp, 1 = full motor control)
+- scrollRange timing (when each pose/transition starts and ends — affects pacing and readability)
+- pose references (which named pose the skeleton targets — e.g. "falling", "kick", "standing")
+
+You CANNOT change and should NOT try to fix:
+- Gravity, mass, or density (those are physics constants, not choreography)
+- Collision behavior or ground contact (environment physics)
+- Joint angular limits (structural skeleton constraints)
+
+Focus on making the poses readable, transitions smooth, and timing feel natural.
 
 Respond with ONLY valid JSON in this exact format:
 {

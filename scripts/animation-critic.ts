@@ -91,7 +91,23 @@ export async function critiqueAnimation(
 
   content.push({
     type: 'text',
-    text: `This is a stick figure animation of ${description}. The following frames show the sequence in order. Rate the animation quality 1-10. List specific issues with frame numbers.
+    text: `You are evaluating the SKELETAL ANIMATION quality of a stick figure — how the figure's body poses, moves, and transitions through a choreographed sequence.
+
+The animation shows: ${description}
+
+EVALUATE ONLY the skeleton's movement:
+- Pose readability: Can you tell what the figure is doing at each key moment?
+- Transition quality: Do joints move smoothly between poses? Are there jerky jumps?
+- Timing: Do poses hold long enough to read? Are transitions too fast or too slow?
+- Joint coordination: Do arms, legs, and torso move together in a way that looks intentional and natural?
+- Storytelling: Does the sequence of poses clearly convey the intended action?
+
+DO NOT evaluate:
+- Physics behavior (gravity, floating, collisions, bouncing)
+- Environmental interactions (ground contact, prop physics)
+- Anything the skeleton's motor parameters cannot control
+
+Rate the skeletal animation quality 1-10. List specific issues with frame numbers, focusing only on pose and movement quality.
 
 Respond with ONLY valid JSON in this exact format:
 {
