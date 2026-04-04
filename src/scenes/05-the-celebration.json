@@ -2,19 +2,34 @@
   "id": "the-celebration",
   "title": "The Celebration",
   "order": 5,
-  "scrollRange": [0.8, 1.0],
-  "transitionIn": { "type": "crossfade", "duration": 0.05 },
-  "transitionOut": { "type": "crossfade", "duration": 0.05 },
+  "scrollRange": [
+    0.8,
+    1
+  ],
+  "transitionIn": {
+    "type": "crossfade",
+    "duration": 0.05
+  },
+  "transitionOut": {
+    "type": "crossfade",
+    "duration": 0.05
+  },
   "actors": [
     {
       "type": "ragdoll",
       "id": "figure",
-      "position": [0.5, 0.65]
+      "position": [
+        0.5,
+        0.65
+      ]
     },
     {
       "type": "particle-emitter",
       "id": "confetti",
-      "position": [0.1, -0.1],
+      "position": [
+        0.1,
+        -0.1
+      ],
       "count": 80,
       "physics": {
         "density": 0.2,
@@ -32,39 +47,136 @@
   },
   "camera": {
     "type": "zoom",
-    "offset": [0, 0],
+    "offset": [
+      0,
+      0
+    ],
     "scale": 0.95
   },
-  "physics": { "gravity": [0, 980] },
+  "physics": {
+    "gravity": [
+      0,
+      980
+    ]
+  },
   "beats": [
     {
-      "scrollRange": [0.0, 0.05],
+      "scrollRange": [
+        0,
+        0.1
+      ],
       "action": "hold-pose",
       "target": "figure",
       "pose": "standing",
-      "motorBlend": 1.0,
-      "motorStiffness": 50
+      "motorBlend": 1,
+      "motorStiffness": 300
     },
     {
-      "scrollRange": [0.05, 0.3],
+      "scrollRange": [
+        0.1,
+        0.16
+      ],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "crouch",
+      "motorBlend": 1,
+      "motorStiffness": 400
+    },
+    {
+      "scrollRange": [
+        0.16,
+        0.26
+      ],
       "action": "hold-pose",
       "target": "figure",
       "pose": "victory",
-      "motorBlend": 1.0,
-      "motorStiffness": 60
+      "motorBlend": 1,
+      "motorStiffness": 550
     },
     {
-      "scrollRange": [0.3, 0.31],
+      "scrollRange": [
+        0.26,
+        0.42
+      ],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "victory",
+      "motorBlend": 1,
+      "motorStiffness": 600
+    },
+    {
+      "scrollRange": [
+        0.34,
+        0.35
+      ],
       "action": "spawn-particles",
       "target": "confetti"
     },
     {
-      "scrollRange": [0.35, 0.95],
+      "scrollRange": [
+        0.42,
+        0.52
+      ],
       "action": "hold-pose",
       "target": "figure",
       "pose": "victory",
-      "motorBlend": 1.0,
-      "motorStiffness": 60
+      "motorBlend": 1,
+      "motorStiffness": 580
+    },
+    {
+      "scrollRange": [
+        0.52,
+        0.62
+      ],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "standing",
+      "motorBlend": 1,
+      "motorStiffness": 350
+    },
+    {
+      "scrollRange": [
+        0.62,
+        0.7
+      ],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "standing",
+      "motorBlend": 1,
+      "motorStiffness": 300
+    },
+    {
+      "scrollRange": [
+        0.7,
+        0.76
+      ],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "crouch",
+      "motorBlend": 1,
+      "motorStiffness": 400
+    },
+    {
+      "scrollRange": [
+        0.76,
+        0.86
+      ],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "victory",
+      "motorBlend": 1,
+      "motorStiffness": 550
+    },
+    {
+      "scrollRange": [
+        0.86,
+        1
+      ],
+      "action": "hold-pose",
+      "target": "figure",
+      "pose": "victory",
+      "motorBlend": 1,
+      "motorStiffness": 600
     }
   ]
 }

@@ -1,152 +1,122 @@
 [
   {
     "frame": 10,
-    "timestamp": 4.400000095367432,
-    "physicsHash": "d623779479f23d625a9674f553c90a15fbee8191a39156a48e355d7a081ca110"
+    "physicsHash": "64a29206296b9b02edba3c5b8c5a12569f2747d2174c62e6867353bf6f58b604"
   },
   {
     "frame": 20,
-    "timestamp": 8.400000095367432,
-    "physicsHash": "41520f830cd60e28c2b5dd104549074d6dac2826241865a8e2d8487b2e00c5d0"
+    "physicsHash": "2176d1c73f90ec0ae74e52fcffb7c4876b207ad1817ca6d1dbc20af756f6f574"
   },
   {
     "frame": 30,
-    "timestamp": 15.5,
-    "physicsHash": "a74016f08bf9c8498e1b3ea5b0b2e37c6934707fd8262937b94ddd8aa2519180"
+    "physicsHash": "8f83a402935cccb5b86c49f8356169c87ad795b843c1093d9a3f0ffacc6e6e95"
   },
   {
     "frame": 40,
-    "timestamp": 21.09999990463257,
-    "physicsHash": "775982e402b4a203408d6d1fc3ee4ab6cac9f713e7e8e9021be8b5e55ea44ba0"
+    "physicsHash": "2ab000b90eb7a395cf39410f2e6f0c7da7c3dce77a8ae79e9e2f0d2219106b8c"
   },
   {
     "frame": 50,
-    "timestamp": 28.59999990463257,
-    "physicsHash": "203f52a3f9f448a6d08f71b685d667afcab79a783d860535e32529f58492558d"
+    "physicsHash": "321676496301070f13503fb86fd6d5ef897e969b22e24fa50a1fc2a073250a2e"
   },
   {
     "frame": 60,
-    "timestamp": 32.200000286102295,
-    "physicsHash": "e27977e5aec3cb62914e685692efbadd4018f6a146336be7b1ca33889f2d1718"
+    "physicsHash": "9112a352d9eedf6138f0bb0da70e6e983d673529e028fbdde3db57e0c2b61381"
   },
   {
     "frame": 70,
-    "timestamp": 36,
-    "physicsHash": "67ffee937f5a2ebe86f08d79e82ba54de0e34a8b0ce416011356a4f7cd1bb9ce"
+    "physicsHash": "a061f067d176b0951a3885e34caa39281cc0306d377bc86ee31e945230ebce2d"
   },
   {
     "frame": 80,
-    "timestamp": 42.09999990463257,
-    "physicsHash": "784e0ef9be40eb8cd97d617e975236d73c748baf2d47c67ea8335242652ae35d"
+    "physicsHash": "958e30825a2a1539be5b8b0679f1fb3c344ee9d4d62b119b786d8b5ba79f3c66"
   },
   {
     "frame": 90,
-    "timestamp": 46.5,
-    "physicsHash": "75c7dfffe389e3c46342f406bf054bd0bc3048f5fe06a1a76a47d7e3fbab1ccf"
+    "physicsHash": "ef5560da8b537b730e773c81f9c8ad71485650406431f2d83e4ded045e093168"
   },
   {
     "frame": 100,
-    "timestamp": 51.09999990463257,
-    "physicsHash": "5ce570074949be548edf39134f1a7bb795ee73aec21ec211335dd8b89dd7be93"
+    "physicsHash": "a759a0cab25a6462dc8ed82609e35fa30013d9ab786404af23d2a38e9b820ecd"
   },
   {
     "frame": 110,
-    "timestamp": 56,
-    "physicsHash": "45fc3a5db4bcfd327d84519cf468e25381958247a29c59e45c4ae38dff70370d"
+    "physicsHash": "fecb12aa38a82ab9f9c718f0f67c1b767639840e1c89bc0b49fd52da9f144601"
   },
   {
     "frame": 120,
-    "timestamp": 59.80000019073486,
-    "physicsHash": "f9a1e43dc6d00fcbdd1f4c45062ceceb7aaca08b3210baabd858b2c31b898430"
+    "physicsHash": "bc6032c44c699dbe478e2312ec0826f0e9644c0b082749ef79dd146ef3f0cf68"
   },
   {
     "frame": 130,
-    "timestamp": 62.90000009536743,
-    "physicsHash": "05ccb4d01d6486220b0dc997cdb1dd00f9598113af6fbecdd08ff70f823438b7"
+    "physicsHash": "10f0e1df267c609d5fc2c1981bf5d9450950c33bd8c24cca0ec96baba46607ea"
   },
   {
     "frame": 140,
-    "timestamp": 66.09999990463257,
-    "physicsHash": "1d94b1cd5042358dd206cf9536f08f21d48601afb0460578d6798282490d5aa5"
+    "physicsHash": "d8d3e4b0bd017632a2da25048897e267d1e60de46070243db1bbaa1fb62a923b"
   },
   {
     "frame": 150,
-    "timestamp": 69.5,
-    "physicsHash": "25b11e7e0f95a3f2ff5540806cf1e6bb6308440f5b5d9cabb922bccc322902a4"
+    "physicsHash": "41ab39066fc800f2ad34898c4a038ab0e17c7aa8a3ebe05cb5c6ba87fb2633e6"
   },
   {
     "frame": 160,
-    "timestamp": 75.09999990463257,
-    "physicsHash": "2534f4bfc0cb5bda5ef10983a1ab51fb8540bf03fe766b6ed5cc25f646112d17"
+    "physicsHash": "4a354a0ae3ec3806665eceaff471c0f51a6c6615bc777888f1005494db5c5999"
   },
   {
     "frame": 170,
-    "timestamp": 79,
-    "physicsHash": "9f39625f7a04d5efc870e613c92ea7a929275c2b5a8661bc2b6318ec52c8d85c"
+    "physicsHash": "1adc233aa35ba3c0b7fc823fb149c39b4a9e1b06fd9e512f915810ffcd001dd9"
   },
   {
     "frame": 180,
-    "timestamp": 84,
-    "physicsHash": "75d12320f759af515bacabb75e32b95d1d385698b46de1bd603a8764fa652f22"
+    "physicsHash": "6493d3446fb31e97a9ebfe986c835e4772cae372837761c6a96d10881e500b23"
   },
   {
     "frame": 190,
-    "timestamp": 88.5,
-    "physicsHash": "3a9846018262d95720d51dbb174fa57d37a1b5e154a82c4d689dec0191d959d1"
+    "physicsHash": "2d474d6600bed88106799d375c7e31576d5fc5e327eaeb8271b0b08a42b87667"
   },
   {
     "frame": 200,
-    "timestamp": 92.5,
-    "physicsHash": "5d138c26055ec9bdf343bd22e97b881b105b365d53002f3c47f9d5057039e46a"
+    "physicsHash": "a464814c6590826351e6e687cfe5fb6a1ddcbc13871e18e820b4b0beec0196eb"
   },
   {
     "frame": 210,
-    "timestamp": 95.80000019073486,
-    "physicsHash": "c5936f499fe285414efa8b67ae7c6a5cc9c0c19930dde0628e716798820395f6"
+    "physicsHash": "94a827cd104aadf1edf2af05f96a2fedfc849e136a5f5dfea7be1b88348c37d7"
   },
   {
     "frame": 220,
-    "timestamp": 101.2000002861023,
-    "physicsHash": "a61d0fc049ccc8a84827ace04ef75f6526d0e9ddbd20cc0e86210cf1b88f919b"
+    "physicsHash": "5bbcffaba2348a0e1447b61abbb8184e30bb30782d798174475d5eea9697a567"
   },
   {
     "frame": 230,
-    "timestamp": 104.80000019073486,
-    "physicsHash": "b6b3562e58f599aa381652155a3efd7ca9091c091546a19e38946df934ca041f"
+    "physicsHash": "8079b35e46a58521a6cc0c2045fedc3c82cd4de45ba3a8ee5ef7ee74e3e1bb66"
   },
   {
     "frame": 240,
-    "timestamp": 110.80000019073486,
-    "physicsHash": "baf11112b4ca7fdb4bd60050c9d45fc1982ba91d5120fd9fc99383ea26d97b8c"
+    "physicsHash": "3b78cd155ad0ba72bbd161c3cba17557751b56dc21f6f6ae3be5d3e8bf26ae76"
   },
   {
     "frame": 250,
-    "timestamp": 114.09999990463257,
-    "physicsHash": "734a14e3860dde6aca7ce20b5a725e30465140943d27eefd35a5cf71ad59be43"
+    "physicsHash": "2351784176021927ed811dc2c5380e324296b7abe6a0b04931c0852209905462"
   },
   {
     "frame": 260,
-    "timestamp": 117.5,
-    "physicsHash": "496e369d9fcdae104616d12d01cf3f5d7c6a624a89110e4f1eb8bf1f8334fa10"
+    "physicsHash": "d148e6a816be638d2e5ebeac11ee19dab5a6a137ca36992e69695b65d9a45f53"
   },
   {
     "frame": 270,
-    "timestamp": 120.7000002861023,
-    "physicsHash": "b2ea723b452b791271fd90b41ef37840553672eb94da39f38452ea15b0477a17"
+    "physicsHash": "89899b06e391568c6479a748a8bcb7b1dce3973594aef9abed362c3c9ecae231"
   },
   {
     "frame": 280,
-    "timestamp": 124.40000009536743,
-    "physicsHash": "0fc3313c98166244f121c81a4a5ff399bd5dedff3f16a8c0befb08da960d7a30"
+    "physicsHash": "d22a47a5a317a239c8d6bdae6e88d9ec3760a09769da5d72d4ba786177e83013"
   },
   {
     "frame": 290,
-    "timestamp": 128,
-    "physicsHash": "722101f70a11f9f194da8adf5177d0118e857cfa95194f6f048e1d74ee32b6fd"
+    "physicsHash": "72e32870a46028d50cb3b8c54e48c4cafedf0a2dacd6b8846d4ce19b385cf03c"
   },
   {
     "frame": 300,
-    "timestamp": 132,
-    "physicsHash": "f8d1d90ca9d3bdad8055eb79c5997fb35e308a447ac1707added40dd4cbf4b69"
+    "physicsHash": "9e82ca4cef29d6eeeedaab2963dc3ceb652118257fa89b135f159e6a7df74adf"
   }
 ]
