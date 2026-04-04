@@ -5,6 +5,8 @@ export interface SceneBeat {
   title: string
   order: number
   scrollRange: [number, number]
+  mode?: 'kinematic'
+  keyframes?: KinematicKeyframe[]
   transitionIn?: TransitionConfig
   transitionOut?: TransitionConfig
   actors: Actor[]
@@ -12,6 +14,12 @@ export interface SceneBeat {
   camera?: CameraConfig
   physics?: PhysicsConfig
   beats: BeatStep[]
+}
+
+export interface KinematicKeyframe {
+  scrollRange: [number, number]
+  pose: Record<string, number>
+  easing: string
 }
 
 export interface Actor {

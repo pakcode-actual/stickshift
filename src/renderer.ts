@@ -46,7 +46,8 @@ export function render(
   canvas: HTMLCanvasElement,
   physics: PhysicsWorld,
   camera?: CameraTransform,
-  dynamicBodies?: RAPIER.RigidBody[]
+  dynamicBodies?: RAPIER.RigidBody[],
+  kinematicDraw?: (ctx: CanvasRenderingContext2D) => void
 ): void {
   const w = canvas.getBoundingClientRect().width
   const h = canvas.getBoundingClientRect().height
@@ -61,7 +62,11 @@ export function render(
   }
 
   drawGround(ctx, physics)
-  drawStickFigure(ctx, physics)
+  if (kinematicDraw) {
+    kinematicDraw(ctx)
+  } else {
+    drawStickFigure(ctx, physics)
+  }
   drawBeachBall(ctx, physics)
 
   // Draw dynamic prop bodies (confetti, boxes, platforms)

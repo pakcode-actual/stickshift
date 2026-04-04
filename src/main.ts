@@ -3,6 +3,7 @@ import { initCanvas, resizeCanvas, render } from './renderer'
 import { prepareText, layoutText, renderTextToDOM, getLineHeight } from './pretext-layout'
 import { initJourney } from './scene'
 import { initProgressIndicator } from './progress-indicator'
+import { drawKinematicSkeleton } from './kinematic-skeleton'
 import type { PhysicsWorld } from './physics'
 import type { JourneyController } from './scene'
 import type { ProgressIndicator } from './progress-indicator'
@@ -51,7 +52,7 @@ async function main(): Promise<void> {
     scene02 as SceneBeat,
     scene03 as SceneBeat,
     scene04 as SceneBeat,
-    scene05 as SceneBeat,
+    scene05 as unknown as SceneBeat,
   ]
 
   // Initialize scroll-driven journey
@@ -150,8 +151,16 @@ function gameLoop(
     // Get camera transform
     const camera = journey.getCamera()
 
+    // Build kinematic draw callback if scene uses kinematic mode
+    let kinematicDraw: ((drawCtx: CanvasRenderingContext2D) => void) | undefined
+    if (activeScene?.kinematicPose && activeScene?.kinematicPositions) {
+      const pos = activeScene.kinematicPositions
+      const headAngle = activeScene.kinematicPose.head
+      kinematicDraw = (drawCtx) => drawKinematicSkeleton(drawCtx, pos, headAngle)
+    }
+
     // Render physics objects on canvas
-    render(ctx, canvas, physics, camera, activeScene?.dynamicBodies)
+    render(ctx, canvas, physics, camera, activeScene?.dynamicBodies, kinematicDraw)
 
     // Update progress indicator
     progress.update(journey.getActiveSceneIndex(), journey.getSceneCount())

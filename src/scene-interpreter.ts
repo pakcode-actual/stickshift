@@ -16,6 +16,10 @@ import {
   setGravityOverride,
   createParticleBatch,
 } from './physics'
+import type { SkeletonPose, SkeletonPositions, KinematicColliders } from './kinematic-skeleton'
+import { computeFK, computeRootY, createKinematicColliders, updateKinematicColliders, destroyKinematicColliders } from './kinematic-skeleton'
+import type { AnimationDriver } from './animation-driver'
+import { createAnimationDriver } from './animation-driver'
 
 // Default motor stiffness (matches MOTOR_STIFFNESS in physics.ts)
 const MOTOR_STIFFNESS_DEFAULT = 600
@@ -51,6 +55,12 @@ export interface SceneInstance {
   dynamicBodies: RAPIER.RigidBody[]
   executedActions: Set<string>
   transitionOpacity: number
+  // Kinematic mode state
+  animationDriver: AnimationDriver | null
+  kinematicColliders: KinematicColliders | null
+  kinematicPose: SkeletonPose | null
+  kinematicPositions: SkeletonPositions | null
+  kinematicRoot: { x: number; y: number } | null
 }
 
 // ─── Scene Interpreter ──────────────────────────────────────────────────────
@@ -62,6 +72,11 @@ export function createSceneInstance(beat: SceneBeat): SceneInstance {
     dynamicBodies: [],
     executedActions: new Set(),
     transitionOpacity: 0,
+    animationDriver: null,
+    kinematicColliders: null,
+    kinematicPose: null,
+    kinematicPositions: null,
+    kinematicRoot: null,
   }
 }
 
@@ -77,6 +92,41 @@ export function activateScene(
   // Apply scene-level physics overrides
   if (instance.beat.physics?.gravity) {
     setGravityOverride(physics, instance.beat.physics.gravity)
+  }
+
+  // Kinematic mode: skeleton is canvas-drawn, not a Rapier body
+  if (instance.beat.mode === 'kinematic' && instance.beat.keyframes) {
+    // Park ragdoll off-screen and freeze it
+    teleportRagdoll(physics.ragdoll, -500, -500)
+    freezeRagdoll(physics.ragdoll)
+    hideBeachBall(physics)
+
+    // Create animation driver from keyframe definitions
+    instance.animationDriver = createAnimationDriver(instance.beat.keyframes)
+
+    // Create kinematic colliders for confetti interaction
+    instance.kinematicColliders = createKinematicColliders(physics)
+
+    // Compute root position: centered horizontally, feet on ground
+    const ragdollActor = instance.beat.actors.find(a => a.type === 'ragdoll')
+    const rootX = ragdollActor
+      ? ragdollActor.position[0] * physics.sceneWidth
+      : physics.sceneWidth / 2
+    instance.kinematicRoot = { x: rootX, y: computeRootY(physics.groundY) }
+
+    // Still process non-ragdoll actors (particle emitters, props)
+    for (const actor of instance.beat.actors) {
+      if (actor.type === 'prop') {
+        const px = actor.position[0] * physics.sceneWidth
+        const py = actor.position[1] * physics.sceneHeight
+        const body = createDynamicProp(physics, actor.propType ?? 'box', px, py, actor.physics)
+        if (actor.velocity) {
+          body.setLinvel(new RAPIER.Vector2(actor.velocity[0], actor.velocity[1]), true)
+        }
+        instance.dynamicBodies.push(body)
+      }
+    }
+    return
   }
 
   // Process actors — positions in JSON are normalized [0,1], scale to pixels
@@ -119,6 +169,19 @@ export function deactivateScene(
   instance.lifecycle = 'unloaded'
   instance.transitionOpacity = 0
 
+  // Clean up kinematic mode state
+  if (instance.animationDriver) {
+    instance.animationDriver.destroy()
+    instance.animationDriver = null
+  }
+  if (instance.kinematicColliders) {
+    destroyKinematicColliders(physics, instance.kinematicColliders)
+    instance.kinematicColliders = null
+  }
+  instance.kinematicPose = null
+  instance.kinematicPositions = null
+  instance.kinematicRoot = null
+
   // Reset gravity to default
   setGravityOverride(physics, [0, 980])
 }
@@ -138,6 +201,15 @@ export function updateScene(
   physics: PhysicsWorld
 ): void {
   if (instance.lifecycle !== 'active') return
+
+  // Update kinematic animation if applicable
+  if (instance.animationDriver && instance.kinematicRoot) {
+    instance.kinematicPose = instance.animationDriver.update(localProgress)
+    instance.kinematicPositions = computeFK(instance.kinematicPose, instance.kinematicRoot)
+    if (instance.kinematicColliders) {
+      updateKinematicColliders(instance.kinematicColliders, instance.kinematicPositions, instance.kinematicPose)
+    }
+  }
 
   for (const step of instance.beat.beats) {
     const [stepStart, stepEnd] = step.scrollRange

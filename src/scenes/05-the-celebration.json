@@ -2,10 +2,8 @@
   "id": "the-celebration",
   "title": "The Celebration",
   "order": 5,
-  "scrollRange": [
-    0.8,
-    1
-  ],
+  "scrollRange": [0.8, 1],
+  "mode": "kinematic",
   "transitionIn": {
     "type": "crossfade",
     "duration": 0.05
@@ -18,18 +16,12 @@
     {
       "type": "ragdoll",
       "id": "figure",
-      "position": [
-        0.5,
-        0.65
-      ]
+      "position": [0.5, 0.65]
     },
     {
       "type": "particle-emitter",
       "id": "confetti",
-      "position": [
-        0.1,
-        -0.1
-      ],
+      "position": [0.1, -0.1],
       "count": 80,
       "physics": {
         "density": 0.2,
@@ -41,142 +33,55 @@
       }
     }
   ],
+  "keyframes": [
+    {
+      "scrollRange": [0, 0.10],
+      "pose": { "head": 0, "shoulderL": 0.15, "shoulderR": -0.15, "elbowL": 0, "elbowR": 0, "hipL": 0, "hipR": 0, "kneeL": 0, "kneeR": 0 },
+      "easing": "none"
+    },
+    {
+      "scrollRange": [0.10, 0.16],
+      "pose": { "hipL": -0.3, "hipR": -0.3, "kneeL": -1.2, "kneeR": -1.2, "shoulderL": 0.5, "shoulderR": -0.5 },
+      "easing": "power2.inOut"
+    },
+    {
+      "scrollRange": [0.16, 0.26],
+      "pose": { "shoulderL": -2.5, "shoulderR": 2.5, "elbowL": -0.3, "elbowR": 0.3, "hipL": 0, "hipR": 0, "kneeL": 0, "kneeR": 0 },
+      "easing": "power2.out"
+    },
+    {
+      "scrollRange": [0.52, 0.62],
+      "pose": { "shoulderL": 0.15, "shoulderR": -0.15, "elbowL": 0, "elbowR": 0, "hipL": 0, "hipR": 0, "kneeL": 0, "kneeR": 0 },
+      "easing": "power2.inOut"
+    },
+    {
+      "scrollRange": [0.70, 0.76],
+      "pose": { "hipL": -0.3, "hipR": -0.3, "kneeL": -1.2, "kneeR": -1.2, "shoulderL": 0.5, "shoulderR": -0.5 },
+      "easing": "power2.inOut"
+    },
+    {
+      "scrollRange": [0.76, 0.86],
+      "pose": { "shoulderL": -2.5, "shoulderR": 2.5, "elbowL": -0.3, "elbowR": 0.3, "hipL": 0, "hipR": 0, "kneeL": 0, "kneeR": 0 },
+      "easing": "power2.out"
+    }
+  ],
   "text": {
     "content": "Particle systems are the fireworks of physics simulation. Each confetti piece is a tiny rigid body with its own mass, velocity, and angular momentum. Spawned with random initial velocities, they fan out in a burst pattern before gravity pulls them into graceful arcs.\n\nWhat makes particle effects convincing is variation. Each particle has a slightly different size, density, and initial velocity. Some spin faster, some float longer. The reduced gravity scale (0.4x) makes them drift lazily, giving the confetti that characteristic floating quality you see at celebrations.\n\nCollision detection scales with particle count. Each confetti piece can bounce off the ground, the ragdoll, and other particles. The physics engine uses broad-phase spatial indexing to efficiently test thousands of potential collisions per frame, keeping performance smooth even with 80 particles.\n\nThe reflow text mode brings us full circle — text wraps around physics bodies, creating negative space that makes the particles feel like they occupy the same world as the words. This hybrid rendering approach (DOM text + canvas physics) gives us the best of both worlds: accessible, selectable text and smooth, GPU-accelerated physics rendering.\n\nYou've now seen the full spectrum of active ragdoll physics: falling, running, kicking, climbing, posing, and celebrating. Five scenes, each driven by a simple JSON configuration, each demonstrating a different facet of physics simulation. The scene DSL makes it possible to author these experiences declaratively — no code changes needed, just data.",
     "mode": "reflow"
   },
   "camera": {
     "type": "zoom",
-    "offset": [
-      0,
-      0
-    ],
+    "offset": [0, 0],
     "scale": 0.95
   },
   "physics": {
-    "gravity": [
-      0,
-      980
-    ]
+    "gravity": [0, 980]
   },
   "beats": [
     {
-      "scrollRange": [
-        0,
-        0.1
-      ],
-      "action": "hold-pose",
-      "target": "figure",
-      "pose": "standing",
-      "motorBlend": 1,
-      "motorStiffness": 300
-    },
-    {
-      "scrollRange": [
-        0.1,
-        0.16
-      ],
-      "action": "hold-pose",
-      "target": "figure",
-      "pose": "crouch",
-      "motorBlend": 1,
-      "motorStiffness": 400
-    },
-    {
-      "scrollRange": [
-        0.16,
-        0.26
-      ],
-      "action": "hold-pose",
-      "target": "figure",
-      "pose": "victory",
-      "motorBlend": 1,
-      "motorStiffness": 550
-    },
-    {
-      "scrollRange": [
-        0.26,
-        0.42
-      ],
-      "action": "hold-pose",
-      "target": "figure",
-      "pose": "victory",
-      "motorBlend": 1,
-      "motorStiffness": 600
-    },
-    {
-      "scrollRange": [
-        0.34,
-        0.35
-      ],
+      "scrollRange": [0.34, 0.35],
       "action": "spawn-particles",
       "target": "confetti"
-    },
-    {
-      "scrollRange": [
-        0.42,
-        0.52
-      ],
-      "action": "hold-pose",
-      "target": "figure",
-      "pose": "victory",
-      "motorBlend": 1,
-      "motorStiffness": 580
-    },
-    {
-      "scrollRange": [
-        0.52,
-        0.62
-      ],
-      "action": "hold-pose",
-      "target": "figure",
-      "pose": "standing",
-      "motorBlend": 1,
-      "motorStiffness": 350
-    },
-    {
-      "scrollRange": [
-        0.62,
-        0.7
-      ],
-      "action": "hold-pose",
-      "target": "figure",
-      "pose": "standing",
-      "motorBlend": 1,
-      "motorStiffness": 300
-    },
-    {
-      "scrollRange": [
-        0.7,
-        0.76
-      ],
-      "action": "hold-pose",
-      "target": "figure",
-      "pose": "crouch",
-      "motorBlend": 1,
-      "motorStiffness": 400
-    },
-    {
-      "scrollRange": [
-        0.76,
-        0.86
-      ],
-      "action": "hold-pose",
-      "target": "figure",
-      "pose": "victory",
-      "motorBlend": 1,
-      "motorStiffness": 550
-    },
-    {
-      "scrollRange": [
-        0.86,
-        1
-      ],
-      "action": "hold-pose",
-      "target": "figure",
-      "pose": "victory",
-      "motorBlend": 1,
-      "motorStiffness": 600
     }
   ]
 }
