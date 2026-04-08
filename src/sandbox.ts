@@ -334,10 +334,13 @@ function loadBeat(beatId: string): void {
   // Reset deterministic RNG for reproducibility
   seedRng(42)
 
-  // Create new scene instance
+  // Create new scene instance — strip particle-emitters in training mode
+  const beat = trainingMode
+    ? { ...entry.beat, actors: entry.beat.actors.filter(a => a.type !== 'particle-emitter') }
+    : entry.beat
   let instance: SceneInstance
   try {
-    instance = createSceneInstance(entry.beat)
+    instance = createSceneInstance(beat)
     activateScene(instance, state.physics)
   } catch (err) {
     showError(err instanceof Error ? err.message : String(err))
@@ -706,7 +709,7 @@ function gameLoop(): void {
 
       // Render — training mode skips props/confetti, shows only skeleton
       const bodies = trainingMode ? undefined : activeScene?.dynamicBodies
-      render(renderCtx, canvas, physics, undefined, bodies, kinematicDraw)
+      render(renderCtx, canvas, physics, undefined, bodies, kinematicDraw, trainingMode)
 
       // Debug overlays
       if (!trainingMode) renderDebug(renderCtx)
