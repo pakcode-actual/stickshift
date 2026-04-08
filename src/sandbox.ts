@@ -11,6 +11,7 @@ import {
   getLocalProgress,
 } from './scene-interpreter'
 import { SandboxDriver } from './playback'
+import { drawKinematicSkeleton } from './kinematic-skeleton'
 
 // ─── Window augmentation for determinism testing ───────────────────────────
 
@@ -81,6 +82,16 @@ const valDamping = document.getElementById('val-damping')!
 const valAngle = document.getElementById('val-angle')!
 const toggleTargetSkeleton = document.getElementById('toggle-target-skeleton') as HTMLInputElement
 const toggleRapierDebug = document.getElementById('toggle-rapier-debug') as HTMLInputElement
+
+// ─── Training Mode ─────────────────────────────────────────────────────────
+
+const trainingMode = new URLSearchParams(window.location.search).get('training') === 'true'
+
+if (trainingMode) {
+  // Hide non-essential UI — keep controls (beat selector + transport)
+  document.getElementById('debug-panel')!.style.display = 'none'
+  hudEl.style.display = 'none'
+}
 
 // ─── Joint Names ────────────────────────────────────────────────────────────
 
@@ -266,8 +277,16 @@ async function main(): Promise<void> {
       stepPhysics(freshPhysics)
 
       if (i % captureEvery === 0) {
+        // Build kinematic draw callback for capture
+        let captureDraw: ((drawCtx: CanvasRenderingContext2D) => void) | undefined
+        if (instance.kinematicPose && instance.kinematicPositions) {
+          const pos = instance.kinematicPositions
+          const headAngle = instance.kinematicPose.head
+          captureDraw = (drawCtx) => drawKinematicSkeleton(drawCtx, pos, headAngle)
+        }
+
         // Render the current state to the canvas
-        render(state.ctx, canvas, freshPhysics, undefined, instance.dynamicBodies)
+        render(state.ctx, canvas, freshPhysics, undefined, instance.dynamicBodies, captureDraw)
 
         // Force pixel readback before toDataURL — ensures GPU compositing flushes
         state.ctx.getImageData(0, 0, 1, 1)
@@ -343,7 +362,7 @@ function loadBeat(beatId: string): void {
 
   // Show UI
   emptyState.style.display = 'none'
-  tuningPanel.style.display = 'block'
+  if (!trainingMode) tuningPanel.style.display = 'block'
   setTransportEnabled(true)
   updateFrameDisplay()
 
@@ -677,11 +696,20 @@ function gameLoop(): void {
         applyJointOverrides()
       }
 
-      // Render
-      render(renderCtx, canvas, physics, undefined, activeScene?.dynamicBodies)
+      // Build kinematic draw callback if scene uses kinematic mode
+      let kinematicDraw: ((drawCtx: CanvasRenderingContext2D) => void) | undefined
+      if (activeScene?.kinematicPose && activeScene?.kinematicPositions) {
+        const pos = activeScene.kinematicPositions
+        const headAngle = activeScene.kinematicPose.head
+        kinematicDraw = (drawCtx) => drawKinematicSkeleton(drawCtx, pos, headAngle)
+      }
+
+      // Render — training mode skips props/confetti, shows only skeleton
+      const bodies = trainingMode ? undefined : activeScene?.dynamicBodies
+      render(renderCtx, canvas, physics, undefined, bodies, kinematicDraw)
 
       // Debug overlays
-      renderDebug(renderCtx)
+      if (!trainingMode) renderDebug(renderCtx)
 
       // HUD
       const beatTitle = activeScene ? activeScene.beat.title : 'none'
