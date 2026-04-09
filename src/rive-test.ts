@@ -17,7 +17,8 @@ log('Initializing Rive...')
 
 const character = new RiveCharacter({
   canvas,
-  src: '/rive/vehicles.riv',
+  src: '/rive/character-animation.riv',
+  stateMachine: 'Alternatif',
   onLoad: (inputs) => {
     ;(window as any).__riveCharacter = character
     const names = [...inputs.keys()]
@@ -29,7 +30,7 @@ const character = new RiveCharacter({
         }).join('\n')
       : 'No state machine inputs found.\nThe character will still play its default animation.'
 
-    wireScrollTrigger(names)
+    wireScrollTrigger()
   },
   onLoadError: (error) => {
     log(`Error: ${error}`)
@@ -50,19 +51,18 @@ window.addEventListener('resize', resize)
 /**
  * Wire GSAP ScrollTrigger to Rive state machine inputs.
  *
- * Strategy: we divide the scroll into 3 sections.
- * - Section 1 (0–33%): idle
- * - Section 2 (33–66%): walk / movement
- * - Section 3 (66–100%): celebrate / jump
+ * The character-animation.riv uses the "Alternatif" state machine with
+ * boolean inputs: IsIdle, IsWalking, IsRunning.
  *
- * We try to find inputs by common names. If no matching inputs exist
- * (the community .riv may use different names), we log what's available
- * and the scroll sections still show visual feedback via the DOM.
+ * Scroll sections:
+ *  - Section 1 (0–33%): idle
+ *  - Section 2 (33–66%): walking
+ *  - Section 3 (66–100%): running (most energetic state available)
  */
-function wireScrollTrigger(inputNames: string[]): void {
+function wireScrollTrigger(): void {
   const sections = document.querySelectorAll<HTMLElement>('.scroll-section')
+  let lastSection = -1
 
-  // Create a master ScrollTrigger across the scroll container
   ScrollTrigger.create({
     trigger: '#scroll-container',
     start: 'top top',
@@ -75,46 +75,37 @@ function wireScrollTrigger(inputNames: string[]): void {
       const bar = document.getElementById('progress-bar')
       if (bar) bar.style.width = `${progress * 100}%`
 
-      // Try to set a numeric "scroll" or "progress" input if it exists
-      for (const name of inputNames) {
-        const lower = name.toLowerCase()
-        if (lower.includes('scroll') || lower.includes('progress') || lower === 'level') {
-          character.setInput(name, progress * 100)
-          break
-        }
-      }
-
-      // Section-based triggers
+      // Determine active section
       const section = progress < 0.33 ? 0 : progress < 0.66 ? 1 : 2
       updateActiveSection(sections, section)
 
-      // Try to fire triggers based on section transitions
-      if (section === 1) {
-        trySetInput(inputNames, ['walk', 'walking', 'run', 'move'], true)
-        trySetInput(inputNames, ['idle'], false)
-      } else if (section === 2) {
-        trySetInput(inputNames, ['celebrate', 'jump', 'happy', 'dance'], true)
-        trySetInput(inputNames, ['walk', 'walking', 'run', 'move'], false)
-      } else {
-        trySetInput(inputNames, ['idle'], true)
-        trySetInput(inputNames, ['walk', 'walking', 'run', 'move'], false)
-        trySetInput(inputNames, ['celebrate', 'jump', 'happy', 'dance'], false)
+      // Only update Rive inputs on section change to avoid constant toggling
+      if (section !== lastSection) {
+        lastSection = section
+
+        if (section === 0) {
+          character.setInput('IsIdle', true)
+          character.setInput('IsWalking', false)
+          character.setInput('IsRunning', false)
+        } else if (section === 1) {
+          character.setInput('IsIdle', false)
+          character.setInput('IsWalking', true)
+          character.setInput('IsRunning', false)
+        } else {
+          character.setInput('IsIdle', false)
+          character.setInput('IsWalking', false)
+          character.setInput('IsRunning', true)
+        }
       }
     },
   })
 
-  log('ScrollTrigger wired — scroll to interact')
-}
+  // Start in idle
+  character.setInput('IsIdle', true)
+  character.setInput('IsWalking', false)
+  character.setInput('IsRunning', false)
 
-function trySetInput(inputNames: string[], candidates: string[], value: boolean): void {
-  for (const candidate of candidates) {
-    for (const name of inputNames) {
-      if (name.toLowerCase().includes(candidate)) {
-        character.setInput(name, value)
-        return
-      }
-    }
-  }
+  log('ScrollTrigger wired — scroll to interact')
 }
 
 function updateActiveSection(sections: NodeListOf<HTMLElement>, active: number): void {

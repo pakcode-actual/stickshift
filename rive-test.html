@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rive Animation — Proof of Concept</title>
+  <title>Rive Animation — Scroll-Driven Character</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
 
@@ -57,14 +57,14 @@
       white-space: pre;
     }
 
-    /* ── Character canvas container ── */
+    /* ── Character canvas container — left side, fixed ── */
     #canvas-container {
       position: fixed;
       top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: min(500px, 80vw);
-      height: min(500px, 80vh);
+      left: 5vw;
+      transform: translateY(-50%);
+      width: min(360px, 40vw);
+      height: min(480px, 70vh);
       z-index: 10;
       pointer-events: none;
     }
@@ -85,8 +85,8 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      align-items: center;
-      padding: 2rem;
+      align-items: flex-end;
+      padding: 2rem 4rem 2rem 50%;
       transition: opacity 0.3s ease;
       opacity: 0.3;
     }
@@ -104,7 +104,7 @@
 
     .scroll-section p {
       max-width: 500px;
-      text-align: center;
+      text-align: left;
       color: #888;
     }
 
@@ -148,7 +148,7 @@
     <div id="inputs-debug"></div>
   </div>
 
-  <!-- Rive canvas — fixed in center -->
+  <!-- Rive canvas — fixed on left side -->
   <div id="canvas-container">
     <canvas id="rive-canvas"></canvas>
   </div>
@@ -162,19 +162,19 @@
     <section class="scroll-section active" data-state="idle">
       <span class="section-badge">Section 1</span>
       <h2>Idle</h2>
-      <p>The character rests in its default idle state. Rive's state machine handles the animation loop automatically.</p>
+      <p>Meet our character. Scroll to see them come alive.</p>
     </section>
 
     <section class="scroll-section" data-state="walk">
       <span class="section-badge">Section 2</span>
       <h2>Walk</h2>
-      <p>As you scroll into this section, the state machine transitions to the walk animation. GSAP ScrollTrigger maps scroll progress to Rive inputs.</p>
+      <p>The character is moving now. Scroll-driven animation in action.</p>
     </section>
 
-    <section class="scroll-section" data-state="celebrate">
+    <section class="scroll-section" data-state="run">
       <span class="section-badge">Section 3</span>
-      <h2>Celebrate</h2>
-      <p>The final section triggers the celebration state. This demonstrates scroll-driven state machine control — the foundation for scrollytelling.</p>
+      <h2>Run</h2>
+      <p>Made it to the end! Time to celebrate.</p>
     </section>
 
     <div class="spacer">
@@ -184,7 +184,7 @@
 
   <noscript>
     <div style="padding: 2rem; max-width: 700px; margin: 0 auto; color: #a0a0a0; font-family: 'Inter', sans-serif; line-height: 1.6;">
-      <h2 style="color: #e0e0e0;">Rive Animation — Proof of Concept</h2>
+      <h2 style="color: #e0e0e0;">Rive Animation — Scroll-Driven Character</h2>
       <p>This page demonstrates Rive animation engine integration with GSAP ScrollTrigger for scroll-driven character animation.</p>
       <p style="color: #666; margin-top: 1rem;"><em>Enable JavaScript to see the interactive animation.</em></p>
     </div>
