@@ -16,6 +16,7 @@ import scene02 from './scenes/02-the-kick.json'
 import scene03 from './scenes/03-the-climb.json'
 import scene04 from './scenes/04-the-lecture.json'
 import scene05 from './scenes/05-the-celebration.json'
+import scene06 from './scenes/06-new-celebration.json'
 
 // ─── DOM Elements ────────────────────────────────────────────────────────────
 
@@ -53,6 +54,7 @@ async function main(): Promise<void> {
     scene03 as SceneBeat,
     scene04 as SceneBeat,
     scene05 as unknown as SceneBeat,
+    scene06 as unknown as SceneBeat,
   ]
 
   // Initialize scroll-driven journey

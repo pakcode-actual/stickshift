@@ -1,0 +1,34 @@
+{
+  "id": "new-celebration",
+  "title": "New Celebration",
+  "order": 6,
+  "scrollRange": [0.8, 1],
+  "transitionIn": { "type": "crossfade", "duration": 0.05 },
+  "transitionOut": { "type": "crossfade", "duration": 0.05 },
+  "mode": "kinematic",
+  "actors": [
+    {
+      "type": "ragdoll",
+      "id": "figure",
+      "position": [0.5, 0.65]
+    }
+  ],
+  "text": {
+    "content": "Celebration animation test.",
+    "mode": "line-by-line"
+  },
+  "camera": { "type": "static" },
+  "physics": { "gravity": [0, 980] },
+  "keyframes": [
+    {"scrollRange": [0, 0.08], "pose": {"head": 0, "shoulderL": 0.15, "shoulderR": -0.15, "elbowL": 0, "elbowR": 0, "hipL": 0, "hipR": 0, "kneeL": 0, "kneeR": 0}, "easing": "none"},
+    {"scrollRange": [0.08, 0.18], "pose": {"head": 0, "shoulderL": -0.5, "shoulderR": 0.5, "elbowL": -0.8, "elbowR": 0.8, "hipL": 0.4, "hipR": 0.4, "kneeL": -0.8, "kneeR": -0.8}, "easing": "power2.inOut"},
+    {"scrollRange": [0.18, 0.28], "pose": {"head": 0.05, "shoulderL": -1.0, "shoulderR": 1.05, "elbowL": -1.4, "elbowR": 1.35, "hipL": 0, "hipR": 0, "kneeL": 0, "kneeR": 0}, "easing": "power2.out"},
+    {"scrollRange": [0.28, 0.36], "pose": {"head": 0.08, "shoulderL": -1.8, "shoulderR": 1.85, "elbowL": -1.0, "elbowR": 0.95, "hipL": 0, "hipR": 0, "kneeL": 0, "kneeR": 0}, "easing": "power2.out"},
+    {"scrollRange": [0.36, 0.48], "pose": {"head": 0.08, "shoulderL": -1.8, "shoulderR": 1.85, "elbowL": -1.0, "elbowR": 0.95, "hipL": 0, "hipR": 0, "kneeL": 0, "kneeR": 0}, "easing": "none"},
+    {"scrollRange": [0.48, 0.58], "pose": {"head": 0, "shoulderL": 0.15, "shoulderR": -0.15, "elbowL": 0, "elbowR": 0, "hipL": 0, "hipR": 0, "kneeL": 0, "kneeR": 0}, "easing": "power2.inOut"},
+    {"scrollRange": [0.62, 0.72], "pose": {"head": 0, "shoulderL": -0.5, "shoulderR": 0.5, "elbowL": -0.8, "elbowR": 0.8, "hipL": 0.4, "hipR": 0.4, "kneeL": -0.8, "kneeR": -0.8}, "easing": "power2.inOut"},
+    {"scrollRange": [0.72, 0.82], "pose": {"head": 0.05, "shoulderL": -1.0, "shoulderR": 1.05, "elbowL": -1.4, "elbowR": 1.35, "hipL": 0, "hipR": 0, "kneeL": 0, "kneeR": 0}, "easing": "power2.out"},
+    {"scrollRange": [0.82, 0.92], "pose": {"head": 0.08, "shoulderL": -1.8, "shoulderR": 1.85, "elbowL": -1.0, "elbowR": 0.95, "hipL": 0, "hipR": 0, "kneeL": 0, "kneeR": 0}, "easing": "power2.out"},
+    {"scrollRange": [0.92, 1.0], "pose": {"head": 0, "shoulderL": 0.15, "shoulderR": -0.15, "elbowL": 0, "elbowR": 0, "hipL": 0, "hipR": 0, "kneeL": 0, "kneeR": 0}, "easing": "power2.inOut"}
+  ]
+}

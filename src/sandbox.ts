@@ -47,6 +47,7 @@ import scene02 from './scenes/02-the-kick.json'
 import scene03 from './scenes/03-the-climb.json'
 import scene04 from './scenes/04-the-lecture.json'
 import scene05 from './scenes/05-the-celebration.json'
+import scene06 from './scenes/06-new-celebration.json'
 
 // ─── Available Beats ────────────────────────────────────────────────────────
 
@@ -57,7 +58,7 @@ interface BeatEntry {
 }
 
 function loadAvailableBeats(): BeatEntry[] {
-  const all = [scene01, scene02, scene03, scene04, scene05] as SceneBeat[]
+  const all = [scene01, scene02, scene03, scene04, scene05, scene06] as SceneBeat[]
   return all.map((b) => ({ id: b.id, title: b.title, beat: b }))
 }
 
