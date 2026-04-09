@@ -17,7 +17,7 @@ log('Initializing Rive...')
 
 const character = new RiveCharacter({
   canvas,
-  src: '/rive/character.riv',
+  src: '/rive/vehicles.riv',
   onLoad: (inputs) => {
     const names = [...inputs.keys()]
     log(`Loaded! Inputs: ${names.length ? names.join(', ') : '(none)'}`)
@@ -29,6 +29,10 @@ const character = new RiveCharacter({
       : 'No state machine inputs found.\nThe character will still play its default animation.'
 
     wireScrollTrigger(names)
+  },
+  onLoadError: (error) => {
+    log(`Error: ${error}`)
+    inputsEl.textContent = `Load failed: ${error}`
   },
   onStateChange: (states) => {
     log(`State → ${states.join(', ')}`)

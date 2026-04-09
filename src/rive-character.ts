@@ -1,10 +1,11 @@
-import { Rive, StateMachineInput, Layout, Fit, Alignment, EventType } from '@rive-app/canvas'
+import { Rive, StateMachineInput, Layout, Fit, Alignment } from '@rive-app/canvas'
 
 export interface RiveCharacterOptions {
   canvas: HTMLCanvasElement
   src: string
   stateMachine?: string
   onLoad?: (inputs: Map<string, StateMachineInput>) => void
+  onLoadError?: (error: string) => void
   onStateChange?: (states: string[]) => void
 }
 
@@ -31,8 +32,16 @@ export class RiveCharacter {
       layout: new Layout({ fit: Fit.Contain, alignment: Alignment.Center }),
       isTouchScrollEnabled: true,
       onLoad: () => {
+        const needsReload = this.discoverAndFixStateMachine()
+        if (needsReload) return // will reload with correct state machine
         this.collectInputs()
+        this.resizeDrawingSurface()
         this.opts.onLoad?.(this.inputs)
+      },
+      onLoadError: (e) => {
+        const msg = e instanceof Error ? e.message : String(e)
+        console.error(`[RiveCharacter] Load error: ${msg}`)
+        this.opts.onLoadError?.(msg)
       },
       onStateChange: (event) => {
         if (event?.data && Array.isArray(event.data)) {
@@ -40,6 +49,66 @@ export class RiveCharacter {
         }
       },
     })
+  }
+
+  /**
+   * Log .riv contents and auto-fix state machine name mismatch.
+   * Returns true if a reload was triggered (caller should bail).
+   */
+  private discoverAndFixStateMachine(): boolean {
+    if (!this.rive) return false
+    const r = this.rive
+    console.log('[RiveCharacter] --- .riv contents ---')
+    console.log(`[RiveCharacter] Artboard: ${r.activeArtboard ?? '(default)'}`)
+    console.log(`[RiveCharacter] Animations (${r.animationNames.length}): ${r.animationNames.join(', ') || '(none)'}`)
+    console.log(`[RiveCharacter] State machines (${r.stateMachineNames.length}): ${r.stateMachineNames.join(', ') || '(none)'}`)
+    console.log('[RiveCharacter] -------------------')
+
+    const smNames = r.stateMachineNames
+    if (smNames.length > 0 && !smNames.includes(this.stateMachineName)) {
+      console.warn(
+        `[RiveCharacter] State machine "${this.stateMachineName}" not found! ` +
+        `Available: ${smNames.join(', ')}. Reloading with "${smNames[0]}".`
+      )
+      this.stateMachineName = smNames[0]
+      this.rive?.cleanup()
+      this.initWithKnownStateMachine()
+      return true
+    }
+    return false
+  }
+
+  /** Re-init after state machine name has been corrected */
+  private initWithKnownStateMachine(): void {
+    this.rive = new Rive({
+      src: this.opts.src,
+      canvas: this.opts.canvas,
+      autoplay: true,
+      stateMachines: this.stateMachineName,
+      layout: new Layout({ fit: Fit.Contain, alignment: Alignment.Center }),
+      isTouchScrollEnabled: true,
+      onLoad: () => {
+        console.log(`[RiveCharacter] Loaded with state machine "${this.stateMachineName}"`)
+        this.collectInputs()
+        this.resizeDrawingSurface()
+        this.opts.onLoad?.(this.inputs)
+      },
+      onLoadError: (e) => {
+        const msg = e instanceof Error ? e.message : String(e)
+        console.error(`[RiveCharacter] Load error: ${msg}`)
+        this.opts.onLoadError?.(msg)
+      },
+      onStateChange: (event) => {
+        if (event?.data && Array.isArray(event.data)) {
+          this.opts.onStateChange?.(event.data as string[])
+        }
+      },
+    })
+  }
+
+  /** Sync the drawing surface to the canvas CSS size */
+  resizeDrawingSurface(): void {
+    this.rive?.resizeDrawingSurfaceToCanvas()
   }
 
   private collectInputs(): void {
@@ -84,6 +153,7 @@ export class RiveCharacter {
     canvas.height = parent.clientHeight * dpr
     canvas.style.width = `${parent.clientWidth}px`
     canvas.style.height = `${parent.clientHeight}px`
+    this.resizeDrawingSurface()
   }
 
   cleanup(): void {
