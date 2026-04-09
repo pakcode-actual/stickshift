@@ -45,9 +45,27 @@ interface IterationLog {
   adjustments_made: string
 }
 
+interface KinematicKeyframe {
+  scrollRange: [number, number]
+  pose: {
+    head: number
+    shoulderL: number
+    elbowL: number
+    shoulderR: number
+    elbowR: number
+    hipL: number
+    kneeL: number
+    hipR: number
+    kneeR: number
+  }
+  easing: string
+}
+
 interface SceneBeatJson {
   id: string
   title: string
+  mode?: string
+  keyframes?: KinematicKeyframe[]
   beats: Array<{
     scrollRange: [number, number]
     action: string
@@ -64,8 +82,14 @@ interface SceneBeatJson {
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
+function isKinematicScene(scene: SceneBeatJson): boolean {
+  return scene.mode === 'kinematic' && Array.isArray(scene.keyframes) && scene.keyframes.length > 0
+}
+
 function hashParams(scene: SceneBeatJson): string {
-  const json = JSON.stringify(scene.beats)
+  const json = isKinematicScene(scene)
+    ? JSON.stringify(scene.keyframes)
+    : JSON.stringify(scene.beats)
   return crypto.createHash('sha256').update(json).digest('hex').slice(0, 16)
 }
 
@@ -97,14 +121,60 @@ function captureFramesViaPlaywright(sceneId: string): string {
   return capturesDir
 }
 
-async function adjustParams(
+function buildKinematicPrompt(
   scene: SceneBeatJson,
   critique: CriticResult,
   description: string
-): Promise<{ scene: SceneBeatJson; adjustments: string }> {
-  const token = loadAuthToken()
+): string {
+  return `You are tuning the KINEMATIC CHOREOGRAPHY of a stick figure animation. The movement sequence is: "${description}"
 
-  const prompt = `You are tuning the SKELETAL CHOREOGRAPHY of a stick figure animation. The movement sequence is: "${description}"
+Current keyframes (each has a scrollRange, a pose with joint angles in radians, and an easing):
+${JSON.stringify(scene.keyframes, null, 2)}
+
+Angle reference (all angles in radians, bones default direction is DOWNWARD):
+  shoulderL=0: arm hangs down. shoulderL=-π/2: arm horizontal left. shoulderL=-π: arm straight up.
+  elbowL is RELATIVE to shoulder. elbowL=0: forearm continues same direction as upper arm.
+
+  Example: shoulderL=-0.8, elbowL=-1.5 → elbow at (13,-2), hand at (37,-23) = W-pose
+  Example: shoulderL=-1.8, elbowL=-1.0 → elbow at (21,-31), hand at (32,-61) = air pump
+  Example: shoulderL=0.15, elbowL=0 → arm hangs slightly forward = relaxed standing
+
+  hipL=0: leg hangs straight down. hipL=-0.15: slight knee bend (crouch).
+  kneeL is RELATIVE to hip. kneeL=-0.3: lower leg bends back slightly.
+
+  Right side mirrors left: shoulderR positive = arm toward right.
+
+COMMON BUGS TO AVOID:
+- Elbow-at-zero with active shoulder: If shoulderL != 0, elbowL should NOT be 0 (forearm dangles unnaturally). Give elbows a deliberate angle.
+- Shoulder crossing zero: If shoulder transitions from positive to negative (or vice versa), the elbow passes through the body. Add an intermediate keyframe or ensure shoulder stays on one side.
+- Foot slide: If hipL or hipR changes during standing poses, feet shift on the ground. Keep hips at 0 during standing/holds.
+
+A critic scored this animation ${critique.score}/10.
+Issues:
+${JSON.stringify(critique.issues, null, 2)}
+
+Summary: ${critique.summary}
+
+Your job: adjust the keyframes to improve pose readability and transition quality. You can tune:
+- pose angles (all 9 joint angles per keyframe)
+- scrollRange timing (when each pose starts/ends)
+- easing functions ("none", "power2.inOut", "power2.out", etc.)
+
+You CANNOT change: gravity, mass, density, collision, or the beats array.
+
+Respond with ONLY valid JSON in this exact format:
+{
+  "keyframes": [<the complete modified keyframes array>],
+  "adjustments": "<brief description of what you changed and why>"
+}`
+}
+
+function buildMotorPrompt(
+  scene: SceneBeatJson,
+  critique: CriticResult,
+  description: string
+): string {
+  return `You are tuning the SKELETAL CHOREOGRAPHY of a stick figure animation. The movement sequence is: "${description}"
 
 Current Scene Beat JSON (the "beats" array controls the skeleton's movement):
 ${JSON.stringify(scene.beats, null, 2)}
@@ -133,6 +203,19 @@ Respond with ONLY valid JSON in this exact format:
   "beats": [<the complete modified beats array>],
   "adjustments": "<brief description of what you changed and why>"
 }`
+}
+
+async function adjustParams(
+  scene: SceneBeatJson,
+  critique: CriticResult,
+  description: string
+): Promise<{ scene: SceneBeatJson; adjustments: string }> {
+  const token = loadAuthToken()
+  const kinematic = isKinematicScene(scene)
+
+  const prompt = kinematic
+    ? buildKinematicPrompt(scene, critique, description)
+    : buildMotorPrompt(scene, critique, description)
 
   const response = await fetch('http://localhost:18789/v1/chat/completions', {
     method: 'POST',
@@ -166,10 +249,15 @@ Respond with ONLY valid JSON in this exact format:
   const fenceMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/)
   if (fenceMatch) jsonStr = fenceMatch[1].trim()
 
-  const result = JSON.parse(jsonStr) as { beats: SceneBeatJson['beats']; adjustments: string }
-
-  const adjusted = { ...scene, beats: result.beats }
-  return { scene: adjusted, adjustments: result.adjustments }
+  if (kinematic) {
+    const result = JSON.parse(jsonStr) as { keyframes: KinematicKeyframe[]; adjustments: string }
+    const adjusted = { ...scene, keyframes: result.keyframes }
+    return { scene: adjusted, adjustments: result.adjustments }
+  } else {
+    const result = JSON.parse(jsonStr) as { beats: SceneBeatJson['beats']; adjustments: string }
+    const adjusted = { ...scene, beats: result.beats }
+    return { scene: adjusted, adjustments: result.adjustments }
+  }
 }
 
 // ── Main Loop ──────────────────────────────────────────────────────────────
@@ -216,7 +304,7 @@ async function runLoop(
     // Run vision critic on enhanced frames (fall back to raw if enhanced dir missing)
     const criticDir = fs.existsSync(enhancedDir) ? enhancedDir : capturesDir
     console.error(`  Running vision critic on ${criticDir === enhancedDir ? 'enhanced' : 'raw'} frames...`)
-    const critique = await critiqueAnimation(criticDir, description, sceneId)
+    const critique = await critiqueAnimation(criticDir, description, sceneId, scenePath)
     console.error(`  Score: ${critique.score}/10`)
     console.error(`  Summary: ${critique.summary}`)
 
