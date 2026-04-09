@@ -19,6 +19,7 @@ const character = new RiveCharacter({
   canvas,
   src: '/rive/character.riv',
   onLoad: (inputs) => {
+    ;(window as any).__riveCharacter = character
     const names = [...inputs.keys()]
     log(`Loaded! Inputs: ${names.length ? names.join(', ') : '(none)'}`)
     inputsEl.textContent = names.length
