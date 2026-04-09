@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rive Animation — Proof of Concept</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      background: #0a0a0a;
+      color: #a0a0a0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 18px;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* ── Progress bar ── */
+    #progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0;
+      background: #e0e0e0;
+      z-index: 100;
+      transition: width 0.05s linear;
+    }
+
+    /* ── Status HUD ── */
+    #hud {
+      position: fixed;
+      top: 12px;
+      right: 16px;
+      font-size: 12px;
+      color: #555;
+      font-family: 'Inter', monospace;
+      z-index: 100;
+      pointer-events: none;
+      text-align: right;
+    }
+
+    #status {
+      margin-bottom: 4px;
+    }
+
+    #inputs-debug {
+      font-size: 11px;
+      color: #444;
+      white-space: pre;
+    }
+
+    /* ── Character canvas container ── */
+    #canvas-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(500px, 80vw);
+      height: min(500px, 80vh);
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    #rive-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ── Scroll sections ── */
+    #scroll-container {
+      position: relative;
+    }
+
+    .scroll-section {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      transition: opacity 0.3s ease;
+      opacity: 0.3;
+    }
+
+    .scroll-section.active {
+      opacity: 1;
+    }
+
+    .scroll-section h2 {
+      font-size: 2rem;
+      font-weight: 500;
+      color: #e0e0e0;
+      margin-bottom: 0.5rem;
+    }
+
+    .scroll-section p {
+      max-width: 500px;
+      text-align: center;
+      color: #888;
+    }
+
+    /* ── Section indicators ── */
+    .section-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+      border: 1px solid #333;
+      color: #666;
+    }
+
+    .active .section-badge {
+      border-color: #e0e0e0;
+      color: #e0e0e0;
+    }
+
+    /* ── Intro/outro spacers ── */
+    .spacer {
+      height: 40vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .spacer p {
+      color: #444;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="progress-bar"></div>
+
+  <div id="hud">
+    <div id="status">Loading...</div>
+    <div id="inputs-debug"></div>
+  </div>
+
+  <!-- Rive canvas — fixed in center -->
+  <div id="canvas-container">
+    <canvas id="rive-canvas"></canvas>
+  </div>
+
+  <!-- Scrollable content -->
+  <div id="scroll-container">
+    <div class="spacer">
+      <p>Scroll down to interact with the Rive character &darr;</p>
+    </div>
+
+    <section class="scroll-section active" data-state="idle">
+      <span class="section-badge">Section 1</span>
+      <h2>Idle</h2>
+      <p>The character rests in its default idle state. Rive's state machine handles the animation loop automatically.</p>
+    </section>
+
+    <section class="scroll-section" data-state="walk">
+      <span class="section-badge">Section 2</span>
+      <h2>Walk</h2>
+      <p>As you scroll into this section, the state machine transitions to the walk animation. GSAP ScrollTrigger maps scroll progress to Rive inputs.</p>
+    </section>
+
+    <section class="scroll-section" data-state="celebrate">
+      <span class="section-badge">Section 3</span>
+      <h2>Celebrate</h2>
+      <p>The final section triggers the celebration state. This demonstrates scroll-driven state machine control — the foundation for scrollytelling.</p>
+    </section>
+
+    <div class="spacer">
+      <p>fin.</p>
+    </div>
+  </div>
+
+  <noscript>
+    <div style="padding: 2rem; max-width: 700px; margin: 0 auto; color: #a0a0a0; font-family: 'Inter', sans-serif; line-height: 1.6;">
+      <h2 style="color: #e0e0e0;">Rive Animation — Proof of Concept</h2>
+      <p>This page demonstrates Rive animation engine integration with GSAP ScrollTrigger for scroll-driven character animation.</p>
+      <p style="color: #666; margin-top: 1rem;"><em>Enable JavaScript to see the interactive animation.</em></p>
+    </div>
+  </noscript>
+
+  <script type="module" src="/src/rive-test.ts"></script>
+</body>
+</html>

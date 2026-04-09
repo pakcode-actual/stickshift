@@ -9,6 +9,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         sandbox: resolve(__dirname, 'sandbox.html'),
+        'rive-test': resolve(__dirname, 'rive-test.html'),
       },
     },
   },
