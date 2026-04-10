@@ -40,7 +40,7 @@
       top: 12px;
       right: 16px;
       font-size: 12px;
-      color: #555;
+      color: #7a7a7a;
       font-family: 'Inter', monospace;
       z-index: 100;
       pointer-events: none;
@@ -53,7 +53,7 @@
 
     #inputs-debug {
       font-size: 11px;
-      color: #444;
+      color: #7a7a7a;
       white-space: pre;
     }
 
@@ -88,25 +88,30 @@
       justify-content: center;
       align-items: flex-end;
       padding: 2rem 4rem 2rem 50%;
-      transition: opacity 0.3s ease;
-      opacity: 0.3;
+      transition: color 0.3s ease;
     }
 
-    .scroll-section.active {
-      opacity: 1;
-    }
-
+    .scroll-section h1,
     .scroll-section h2 {
       font-size: 2rem;
       font-weight: 500;
-      color: #e0e0e0;
+      color: #7a7a7a;
       margin-bottom: 0.5rem;
     }
 
     .scroll-section p {
       max-width: 500px;
       text-align: left;
-      color: #888;
+      color: #7a7a7a;
+    }
+
+    .scroll-section.active h1,
+    .scroll-section.active h2 {
+      color: #e0e0e0;
+    }
+
+    .scroll-section.active p {
+      color: #a0a0a0;
     }
 
     /* ── Section indicators ── */
@@ -118,8 +123,8 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       margin-bottom: 1rem;
-      border: 1px solid #333;
-      color: #666;
+      border: 1px solid #444;
+      color: #7a7a7a;
     }
 
     .active .section-badge {
@@ -136,43 +141,80 @@
     }
 
     .spacer p {
-      color: #444;
+      color: #7a7a7a;
       font-size: 0.9rem;
+    }
+
+    /* ── Skip link ── */
+    .skip-link {
+      position: fixed;
+      top: -100%;
+      left: 1rem;
+      padding: 0.5rem 1rem;
+      background: #e0e0e0;
+      color: #0a0a0a;
+      z-index: 200;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .skip-link:focus {
+      top: 1rem;
+    }
+
+    /* ── Reduced motion ── */
+    @media (prefers-reduced-motion: reduce) {
+      .scroll-section {
+        transition: none;
+      }
+
+      #progress-bar {
+        transition: none;
+      }
+
+      #canvas-container {
+        transition: none;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="progress-bar"></div>
+  <header>
+    <div id="progress-bar" role="progressbar" aria-label="Scroll progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
 
-  <div id="hud">
-    <div id="status">Loading...</div>
-    <div id="inputs-debug"></div>
-  </div>
+    <div id="hud" role="status" aria-live="polite">
+      <div id="status">Loading...</div>
+      <div id="inputs-debug"></div>
+    </div>
+
+    <a href="#scroll-container" class="skip-link">Skip to content</a>
+  </header>
 
   <!-- Rive canvas — fixed on left side -->
-  <div id="canvas-container">
-    <canvas id="rive-canvas"></canvas>
-  </div>
+  <aside id="canvas-container" aria-label="Character animation">
+    <canvas id="rive-canvas" role="img" aria-label="Animated stick figure character responding to scroll position"></canvas>
+  </aside>
 
   <!-- Scrollable content -->
-  <div id="scroll-container">
+  <main id="scroll-container">
     <div class="spacer">
       <p>Scroll down to interact with the Rive character &darr;</p>
     </div>
 
-    <section class="scroll-section active" data-state="idle">
+    <section class="scroll-section active" data-state="idle" aria-label="Section 1: Meet our character">
       <span class="section-badge">Section 1</span>
-      <h2>Meet our character</h2>
+      <h1>Meet our character</h1>
       <p>The character is standing by, waiting for action. Scroll down to see them move.</p>
     </section>
 
-    <section class="scroll-section" data-state="walk">
+    <section class="scroll-section" data-state="walk" aria-label="Section 2: The character is on the move">
       <span class="section-badge">Section 2</span>
       <h2>The character is on the move</h2>
       <p>Scroll-driven animation in action — the character walks as you scroll through the page.</p>
     </section>
 
-    <section class="scroll-section" data-state="celebrate">
+    <section class="scroll-section" data-state="celebrate" aria-label="Section 3: Time to celebrate">
       <span class="section-badge">Section 3</span>
       <h2>Time to celebrate</h2>
       <p>The character has reached the end! Watch the celebration unfold.</p>
@@ -181,7 +223,7 @@
     <div class="spacer">
       <p>fin.</p>
     </div>
-  </div>
+  </main>
 
   <noscript>
     <div style="padding: 2rem; max-width: 700px; margin: 0 auto; color: #a0a0a0; font-family: 'Inter', sans-serif; line-height: 1.6;">

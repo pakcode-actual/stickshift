@@ -85,7 +85,11 @@ function wireScrollTrigger(): void {
 
       // Update progress bar
       const bar = document.getElementById('progress-bar')
-      if (bar) bar.style.width = `${progress * 100}%`
+      if (bar) {
+        const pct = Math.round(progress * 100)
+        bar.style.width = `${pct}%`
+        bar.setAttribute('aria-valuenow', String(pct))
+      }
 
       // Determine active section
       const section = progress < 0.33 ? 0 : progress < 0.66 ? 1 : 2
