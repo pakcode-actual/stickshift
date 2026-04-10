@@ -16,9 +16,23 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.pulls.merge({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-              merge_method: 'squash'
-            });
+            try {
+              await github.rest.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
+                merge_method: 'squash'
+              });
+              console.log(`PR #${context.payload.pull_request.number} merged successfully`);
+            } catch (error) {
+              const message = `⚠️ Auto-merge failed for this PR.\n\n**Error:** ${error.message}\n\nThis usually means a merge conflict. Cyrus needs to rebase against main and push again.`;
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: message
+              });
+              
+              core.setFailed(`Auto-merge failed: ${error.message}`);
+            }
