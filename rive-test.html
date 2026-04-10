@@ -57,16 +57,17 @@
       white-space: pre;
     }
 
-    /* ── Character canvas container — left side, fixed ── */
+    /* ── Character canvas container — left side, fixed, scroll-animated ── */
     #canvas-container {
       position: fixed;
-      top: 50%;
+      top: 20vh;
       left: 5vw;
       transform: translateY(-50%);
       width: min(360px, 40vw);
       height: min(480px, 70vh);
       z-index: 10;
       pointer-events: none;
+      transition: top 0.15s ease-out;
     }
 
     #rive-canvas {
@@ -161,20 +162,20 @@
 
     <section class="scroll-section active" data-state="idle">
       <span class="section-badge">Section 1</span>
-      <h2>Idle</h2>
-      <p>Meet our character. Scroll to see them come alive.</p>
+      <h2>Meet our character</h2>
+      <p>The character is standing by, waiting for action. Scroll down to see them move.</p>
     </section>
 
     <section class="scroll-section" data-state="walk">
       <span class="section-badge">Section 2</span>
-      <h2>Walk</h2>
-      <p>The character is moving now. Scroll-driven animation in action.</p>
+      <h2>The character is on the move</h2>
+      <p>Scroll-driven animation in action — the character walks as you scroll through the page.</p>
     </section>
 
-    <section class="scroll-section" data-state="run">
+    <section class="scroll-section" data-state="celebrate">
       <span class="section-badge">Section 3</span>
-      <h2>Run</h2>
-      <p>Made it to the end! Time to celebrate.</p>
+      <h2>Time to celebrate</h2>
+      <p>The character has reached the end! Watch the celebration unfold.</p>
     </section>
 
     <div class="spacer">

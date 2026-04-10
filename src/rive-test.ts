@@ -5,6 +5,7 @@ import { RiveCharacter } from './rive-character'
 gsap.registerPlugin(ScrollTrigger)
 
 const canvas = document.getElementById('rive-canvas') as HTMLCanvasElement
+const container = document.getElementById('canvas-container') as HTMLElement
 const statusEl = document.getElementById('status') as HTMLElement
 const inputsEl = document.getElementById('inputs-debug') as HTMLElement
 
@@ -15,10 +16,20 @@ function log(msg: string): void {
 
 log('Initializing Rive...')
 
+/**
+ * 5-state-character.riv state machine mapping:
+ *   Walk=0 → Stand (idle)
+ *   Walk=1 → Walk
+ *   Walk=2 → Run
+ *   Walk=3 → Jump
+ *   Walk=4 → Boxing
+ *   Walk=5 → Docking
+ */
+const STATE = { STAND: 0, WALK: 1, RUN: 2, JUMP: 3, BOXING: 4, DOCKING: 5 } as const
+
 const character = new RiveCharacter({
   canvas,
-  src: '/rive/character-animation.riv',
-  stateMachine: 'Alternatif',
+  src: '/rive/5-state-character.riv',
   onLoad: (inputs) => {
     ;(window as any).__riveCharacter = character
     const names = [...inputs.keys()]
@@ -30,6 +41,7 @@ const character = new RiveCharacter({
         }).join('\n')
       : 'No state machine inputs found.\nThe character will still play its default animation.'
 
+    console.log('[rive-test] All discovered inputs:', names)
     wireScrollTrigger()
   },
   onLoadError: (error) => {
@@ -49,16 +61,16 @@ resize()
 window.addEventListener('resize', resize)
 
 /**
- * Wire GSAP ScrollTrigger to Rive state machine inputs.
- *
- * The character-animation.riv uses the "Alternatif" state machine with
- * boolean inputs: IsIdle, IsWalking, IsRunning.
+ * Wire GSAP ScrollTrigger to the Rive "Walk" numeric input and
+ * animate the character's vertical position based on scroll progress.
  *
  * Scroll sections:
- *  - Section 1 (0–33%): idle
- *  - Section 2 (33–66%): walking
- *  - Section 3 (66–100%): running (most energetic state available)
+ *  - Section 1 (0–33%):  Stand (idle)   — Walk=0
+ *  - Section 2 (33–66%): Walk (moving)  — Walk=1
+ *  - Section 3 (66–100%): Jump (celebrate) — Walk=3
  */
+const SECTION_STATES = [STATE.STAND, STATE.WALK, STATE.JUMP]
+
 function wireScrollTrigger(): void {
   const sections = document.querySelectorAll<HTMLElement>('.scroll-section')
   let lastSection = -1
@@ -79,32 +91,21 @@ function wireScrollTrigger(): void {
       const section = progress < 0.33 ? 0 : progress < 0.66 ? 1 : 2
       updateActiveSection(sections, section)
 
-      // Only update Rive inputs on section change to avoid constant toggling
+      // Animate character vertical position: move from top (20vh) to bottom (80vh)
+      const yPercent = 20 + progress * 60
+      container.style.top = `${yPercent}vh`
+
+      // Only update Rive state on section change
       if (section !== lastSection) {
         lastSection = section
-
-        if (section === 0) {
-          character.setInput('IsIdle', true)
-          character.setInput('IsWalking', false)
-          character.setInput('IsRunning', false)
-        } else if (section === 1) {
-          character.setInput('IsIdle', false)
-          character.setInput('IsWalking', true)
-          character.setInput('IsRunning', false)
-        } else {
-          character.setInput('IsIdle', false)
-          character.setInput('IsWalking', false)
-          character.setInput('IsRunning', true)
-        }
+        character.setInput('Walk', SECTION_STATES[section])
+        console.log(`[rive-test] Section ${section} → Walk=${SECTION_STATES[section]}`)
       }
     },
   })
 
   // Start in idle
-  character.setInput('IsIdle', true)
-  character.setInput('IsWalking', false)
-  character.setInput('IsRunning', false)
-
+  character.setInput('Walk', STATE.STAND)
   log('ScrollTrigger wired — scroll to interact')
 }
 
